@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<title>TSA 팔꿈치 보조기기 — ICES 2026 포스터</title>
+<style>
+@font-face{font-family:Plex;font-weight:300;src:url(fonts/ibm-plex-sans-kr-korean-300-normal.woff2),url(fonts/ibm-plex-sans-kr-latin-300-normal.woff2)}
+@font-face{font-family:Plex;font-weight:400;src:url(fonts/ibm-plex-sans-kr-latin-400-normal.woff2);unicode-range:U+0000-00FF,U+2000-206F,U+2190-21FF,U+2212,U+00B0}
+@font-face{font-family:Plex;font-weight:400;src:url(fonts/ibm-plex-sans-kr-korean-400-normal.woff2)}
+@font-face{font-family:Plex;font-weight:500;src:url(fonts/ibm-plex-sans-kr-latin-500-normal.woff2);unicode-range:U+0000-00FF,U+2000-206F,U+2190-21FF,U+2212,U+00B0}
+@font-face{font-family:Plex;font-weight:500;src:url(fonts/ibm-plex-sans-kr-korean-500-normal.woff2)}
+@font-face{font-family:Plex;font-weight:700;src:url(fonts/ibm-plex-sans-kr-latin-700-normal.woff2);unicode-range:U+0000-00FF,U+2000-206F,U+2190-21FF,U+2212,U+00B0}
+@font-face{font-family:Plex;font-weight:700;src:url(fonts/ibm-plex-sans-kr-korean-700-normal.woff2)}
+@font-face{font-family:PlexMono;font-weight:400;src:url(fonts/ibm-plex-mono-latin-400-normal.woff2)}
+@font-face{font-family:PlexMono;font-weight:500;src:url(fonts/ibm-plex-mono-latin-500-normal.woff2)}
+@font-face{font-family:PlexMono;font-weight:600;src:url(fonts/ibm-plex-mono-latin-600-normal.woff2)}
+
+@page{size:841mm 1189mm;margin:0}
+:root{
+  --ink:#1b1e22; --ink2:#4b525a; --hair:#1b1e22; --faint:#d9dcdf;
+  --paper:#ffffff; --str:#c2571a; --teal:#0f6d7a; --red:#d0262d;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:841mm;height:1189mm;background:var(--paper)}
+body{font-family:Plex,'Noto Sans CJK KR',sans-serif;color:var(--ink);font-size:8.8mm;line-height:1.5;
+  word-break:keep-all;font-weight:400;-webkit-font-smoothing:antialiased}
+.num,.mono{font-family:PlexMono,monospace;font-feature-settings:"tnum"}
+
+/* 도면 테두리: 바깥 여백 + 구역 눈금 */
+.sheet{position:absolute;inset:10mm;border:1.1mm solid var(--ink)}
+.zones{position:absolute;inset:10mm;pointer-events:none}
+.zones span{position:absolute;font:500 4.6mm PlexMono;color:var(--ink2)}
+.inner{position:absolute;inset:18mm;border:.35mm solid var(--ink);display:flex;flex-direction:column}
+
+/* 머리: 제목 + 표제란 */
+.head{display:grid;grid-template-columns:1fr 236mm;border-bottom:.6mm solid var(--ink)}
+.title{padding:15mm 16mm 13mm}
+h1{font-weight:700;font-size:21mm;line-height:1.16;letter-spacing:-.6mm;text-wrap:balance}
+h1 em{font-style:normal;color:var(--str)}
+.en{margin-top:5mm;font-size:8.4mm;color:var(--ink2);font-weight:400;line-height:1.35}
+.auth{margin-top:8mm;font-size:9.6mm;font-weight:700}
+.auth sup{font-size:.55em;font-weight:500}
+.aff{font-size:7.2mm;color:var(--ink2)}
+.tb{border-left:.6mm solid var(--ink);display:grid;grid-template-columns:52mm 1fr;font-size:6.8mm;align-content:stretch}
+.tb div{border-bottom:.3mm solid var(--ink);padding:2.6mm 4mm;display:flex;align-items:center}
+.tb .k{border-right:.3mm solid var(--ink);color:var(--ink2);font-size:5.6mm;letter-spacing:.2mm}
+.tb .logo{grid-column:1/-1;justify-content:center;min-height:30mm;color:var(--ink2);font-size:5.6mm}
+.tb div:nth-last-child(-n+2){border-bottom:0}
+
+/* 대표 도면 */
+.hero{position:relative;border-bottom:.6mm solid var(--ink);height:262mm;
+  background-image:linear-gradient(var(--faint) .2mm,transparent .2mm),linear-gradient(90deg,var(--faint) .2mm,transparent .2mm);
+  background-size:10mm 10mm;background-position:-.1mm -.1mm}
+.hero svg{position:absolute;inset:0;width:100%;height:100%}
+.hero .cap{position:absolute;left:12mm;bottom:8mm;font-size:7mm;background:#fff;padding:1mm 3mm;border:.3mm solid var(--ink)}
+.hero .cap b{font-weight:700}
+
+/* 본문 3단 */
+.body{flex:1;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;min-height:0}
+.col{padding:10mm 10mm 6mm;display:flex;flex-direction:column;gap:2mm;min-height:0}
+.col+.col{border-left:.35mm solid var(--ink)}
+h2{font-size:11.6mm;font-weight:700;letter-spacing:-.3mm;line-height:1.2;padding-bottom:2.6mm;border-bottom:.6mm solid var(--ink);margin-bottom:3mm}
+h2 .en2{font:500 5.6mm PlexMono;color:var(--ink2);letter-spacing:.3mm;margin-left:3mm;vertical-align:middle}
+h3{font-size:9.6mm;font-weight:700;margin-top:6mm}
+p+p{margin-top:2mm}
+b{font-weight:700}
+ul{list-style:none} li{position:relative;padding-left:6mm;margin:1.2mm 0}
+li::before{content:"";position:absolute;left:0;top:.72em;width:3mm;height:.5mm;background:var(--ink)}
+ol{list-style:none;counter-reset:s} ol li{counter-increment:s;padding-left:10mm}
+ol li::before{content:counter(s);background:none;width:auto;height:auto;top:0;font:600 7.6mm PlexMono;color:var(--str)}
+figure{margin:3mm 0 1mm;flex-shrink:0}
+figure img{width:100%;display:block}
+figcaption{font-size:6.9mm;color:var(--ink2);margin-top:1.4mm;line-height:1.4}
+figcaption .mono{color:var(--ink);font-weight:600;margin-right:2mm}
+.str{color:var(--str);font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:8.6mm;margin-top:3mm}
+td{border-top:.3mm solid var(--ink);padding:1.6mm 0;vertical-align:top}
+tr:last-child td{border-bottom:.3mm solid var(--ink)}
+td:first-child{width:32mm;color:var(--ink2)}
+
+/* 수정 표시 — 도면의 개정 삼각형 */
+.rev{display:inline-flex;align-items:center;gap:1.4mm;color:var(--red);font-weight:500;font-size:.78em;white-space:nowrap}
+.rev::before{content:"";width:0;height:0;border-left:2.2mm solid transparent;border-right:2.2mm solid transparent;border-bottom:3.8mm solid var(--red)}
+.slot{flex-shrink:0;border:.5mm dashed var(--red);display:flex;align-items:center;justify-content:center;flex-direction:column;
+  color:var(--red);font-size:7.2mm;text-align:center;margin-top:3mm;gap:1mm}
+.slot small{color:var(--ink2);font-size:6.2mm}
+
+/* 바닥 */
+.foot{display:grid;grid-template-columns:1.15fr 1fr 236mm;border-top:.6mm solid var(--ink)}
+.foot>div{padding:9mm 12mm}
+.foot>div+div{border-left:.35mm solid var(--ink)}
+.foot h2{font-size:10.4mm;margin-bottom:2mm}
+.foot .ack{font-size:6.4mm;color:var(--ink2);display:flex;align-items:flex-end;line-height:1.45}
+.ev td:first-child{width:44mm;font-weight:500;color:var(--ink)} .ev td.r{width:10mm;text-align:right;color:var(--str);font-weight:600}
+.mt{margin-top:8mm} h3.f{margin-top:0}
+.note{font-size:6.9mm;color:var(--ink2);line-height:1.45;margin-top:1.5mm}
+.eq{font:600 11mm PlexMono;text-align:center;padding:3mm 0;border-top:.3mm solid var(--ink);border-bottom:.3mm solid var(--ink);margin:2mm 0 3mm}
+table.dat{font-size:7.8mm} .dat th{font-weight:500;color:var(--ink2);text-align:left;padding:1.4mm 0;border-top:.6mm solid var(--ink);font-size:6.6mm}
+.dat td{padding:1.4mm 0} .dat td:first-child{width:auto} .dat .b{color:var(--str);font-weight:600}
+.ev{font-size:7.6mm}
+</style></head>
+<body>
+<div class="sheet"></div>
+<div class="zones" id="zones"></div>
+
+<div class="inner">
+
+<!-- 머리 -->
+<div class="head">
+  <div class="title">
+    <h1><em>꼬임줄 구동기(TSA)</em>를 이용한 착용형 팔꿈치 보조기기의 인간공학적 설계 및 착용성 평가</h1>
+    <div class="en">Ergonomic Design and Wearing Evaluation of a Wearable Elbow Assistive Device Using a Twisted String Actuator</div>
+    <div class="auth">Semun Gu, In Hwan Sul, Heeran Lee<sup>*</sup></div>
+    <div class="aff">Dept. of Materials Design Engineering, Kumoh National Institute of Technology, Gumi, Korea</div>
+  </div>
+  <div class="tb">
+    <div class="logo" style="font-weight:700;color:var(--ink);font-size:6.6mm">Kumoh National Institute of Technology</div>
+    <div class="k">학회</div><div>ICES 2026 · 한국감성과학회</div>
+    <div class="k">세션</div><div>Emotion in Fashion &amp; Textiles</div>
+    <div class="k">일자</div><div class="num">2026.11.27</div>
+    <div class="k">기준 인체</div><div>Size Korea 20–24세 남성 평균</div>
+    <div class="k">척도</div><div>비례 아님 (N.T.S.)</div>
+    <div class="k">교신</div><div class="num">heeran@kumoh.ac.kr</div>
+  </div>
+</div>
+
+<!-- 대표 도면 -->
+<div class="hero">
+<svg viewBox="0 0 1600 600" preserveAspectRatio="xMidYMid meet" font-family="Plex" >
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,1.5 L10,5 L0,8.5 z" fill="#1b1e22"/></marker>
+    <marker id="ar" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,1.5 L10,5 L0,8.5 z" fill="#c2571a"/></marker>
+    <g id="upper">
+      <path d="M-330,-46 L-60,-43 Q-10,-42 0,-40 L0,40 Q-10,42 -60,43 L-330,46" fill="#fff" stroke="#1b1e22" stroke-width="2.2"/>
+      <rect x="-214" y="-47" width="50" height="94" fill="#0f6d7a" fill-opacity=".14" stroke="#0f6d7a" stroke-width="1.6"/>
+      <rect x="-208" y="-80" width="38" height="33" fill="#1b1e22"/>
+      <circle cx="-171" cy="-64" r="15" fill="#fff" stroke="#1b1e22" stroke-width="3"/>
+      <circle cx="-171" cy="-64" r="3" fill="#1b1e22"/>
+    </g>
+    <g id="fore">
+      <path d="M0,-38 L250,-27 Q262,-26 262,-14 L262,14 Q262,26 250,27 L0,38" fill="#fff" stroke="#1b1e22" stroke-width="2.2"/>
+      <rect x="60" y="-37" width="30" height="74" fill="#0f6d7a" fill-opacity=".14" stroke="#0f6d7a" stroke-width="1.6"/>
+      <rect x="66" y="-48" width="18" height="12" fill="#1b1e22"/>
+    </g>
+  </defs>
+
+  <!-- 0° -->
+  <g transform="translate(470,250)">
+    <line x1="-262" y1="-150" x2="-178" y2="-82" stroke="#0f6d7a" stroke-width="3" stroke-dasharray="14 9"/>
+    <text x="-268" y="-158" text-anchor="end" font-size="19" fill="#0f6d7a">어깨끈</text>
+    <use href="#upper"/><use href="#fore"/>
+    <circle r="7" fill="#fff" stroke="#1b1e22" stroke-width="2.5"/>
+    <line x1="-158" y1="-62" x2="75" y2="-48" stroke="#c2571a" stroke-width="5" stroke-linecap="round"/>
+    <!-- 중심선 -->
+    <line x1="-350" y1="0" x2="290" y2="0" stroke="#1b1e22" stroke-width="1" stroke-dasharray="30 6 4 6"/>
+    <!-- 겨드랑 -->
+    <line x1="-236" y1="-120" x2="-236" y2="150" stroke="#c2571a" stroke-width="1.6" stroke-dasharray="8 6"/>
+    <text x="-246" y="-96" text-anchor="end" font-size="19" fill="#c2571a" font-weight="700">겨드랑 높이</text>
+    <!-- 치수선 -->
+    <g stroke="#1b1e22" stroke-width="1.2" fill="none">
+      <line x1="0" y1="45" x2="0" y2="205"/><line x1="-214" y1="50" x2="-214" y2="150"/>
+      <line x1="-236" y1="150" x2="-236" y2="205"/>
+      <line x1="-214" y1="135" x2="0" y2="135" marker-start="url(#a)" marker-end="url(#a)"/>
+      <line x1="-236" y1="190" x2="0" y2="190" marker-start="url(#a)" marker-end="url(#a)"/>
+      <line x1="60" y1="40" x2="60" y2="150"/><line x1="90" y1="40" x2="90" y2="150"/>
+      <line x1="0" y1="135" x2="60" y2="135" marker-end="url(#a)"/>
+    </g>
+    <text x="-107" y="125" text-anchor="middle" font-family="PlexMono" font-size="30" font-weight="600">214</text>
+    <text x="-107" y="180" text-anchor="middle" font-family="PlexMono" font-size="22" fill="#4b525a">236</text>
+    <text x="75" y="178" text-anchor="middle" font-family="PlexMono" font-size="26" font-weight="600">60–90</text>
+    <text x="-30" y="-78" text-anchor="middle" font-family="PlexMono" font-size="26" font-weight="600" fill="#c2571a">L₀ 247</text>
+    <text x="-171" y="-112" text-anchor="middle" font-size="17" fill="#4b525a">모터 · 줄 허브</text>
+    <text x="-158" y="72" font-size="17" fill="#0f6d7a">상완 밴드 50</text>
+    <text x="75" y="58" text-anchor="middle" font-size="17" fill="#0f6d7a">전완 30</text>
+    <text x="-60" y="270" text-anchor="middle" font-size="26" font-weight="700">편 자세 0°</text>
+  </g>
+
+  <!-- 60° -->
+  <g transform="translate(1180,330)">
+    <line x1="-262" y1="-150" x2="-178" y2="-82" stroke="#0f6d7a" stroke-width="3" stroke-dasharray="14 9"/>
+    <use href="#upper"/>
+    <g transform="rotate(-60)"><use href="#fore"/></g>
+    <circle r="7" fill="#fff" stroke="#1b1e22" stroke-width="2.5"/>
+    <line x1="-158" y1="-62" x2="-8" y2="-89" stroke="#c2571a" stroke-width="5" stroke-linecap="round"/>
+    <line x1="-350" y1="0" x2="60" y2="0" stroke="#1b1e22" stroke-width="1" stroke-dasharray="30 6 4 6"/>
+    <path d="M110,0 A110,110 0 0 0 55,-95.3" fill="none" stroke="#1b1e22" stroke-width="1.2" marker-end="url(#a)"/>
+    <text x="118" y="-52" font-family="PlexMono" font-size="28" font-weight="600">60°</text>
+    <text x="-90" y="-122" text-anchor="middle" font-family="PlexMono" font-size="26" font-weight="600" fill="#c2571a">L 163</text>
+    <text x="-60" y="190" text-anchor="middle" font-size="26" font-weight="700">굽힌 자세 60°</text>
+  </g>
+
+  <!-- 수축량 주석 -->
+  <g transform="translate(1440,120)">
+    <text font-size="20" fill="#4b525a">필요 수축량</text>
+    <text y="62" font-family="PlexMono" font-size="66" font-weight="600" fill="#c2571a">84</text>
+    <text x="84" y="62" font-family="PlexMono" font-size="26" fill="#c2571a">mm</text>
+    <text y="96" font-size="17" fill="#d0262d">△ 시뮬레이터 재계산</text>
+  </g>
+  <text x="1580" y="585" text-anchor="end" font-family="PlexMono" font-size="15" fill="#4b525a">단위 mm · 팔꿈치 중심 기준</text>
+</svg>
+<div class="cap"><b>그림 1.</b> 기기 배치. 상완 밴드는 겨드랑 아래 최대 위치(윗단 214 mm), 전완 밴드는 60–90 mm. 줄이 꼬이며 짧아져 팔꿈치를 굽힌다.</div>
+</div>
+
+<!-- 본문 -->
+<div class="body">
+
+<div class="col">
+  <h2>배경과 목적</h2>
+  <p>퇴원 후 <b>가정 재활</b>에 쓰는 팔꿈치 보조기기는 보조력과 함께 <b>착용 부담이 낮고 혼자 입을 수 있어야</b> 한다. 강체 외골격은 기계 관절축을 팔꿈치에 정렬해야 하고 무겁다.</p>
+  <p>TSA는 줄을 꼬아 길이를 줄이므로 <b>관절축 정렬이 필요 없다.</b> TSA 팔꿈치 소프트 슈트 선행연구는 여럿 있으나 인체치수·패턴·착용성 관점의 설계 근거는 부족하다. <span class="rev">선행연구 인용</span></p>
+  <p><b>목적</b>: 인체치수와 착용성을 고려한 TSA 팔꿈치 굴곡 보조기기를 설계하고 착용성을 평가한다.</p>
+
+  <h2 class="mt">설계 기준</h2>
+  <h3 class="f">팔 단면 둘레</h3>
+  <p>Size Korea 20–24세 남성 평균 3D 형상을 팔꿈치부터 잘라 단면 둘레를 구했다.</p>
+  <figure><img src="img/arm_girth.png"><figcaption><span class="mono">그림 2</span>밴드 자리 둘레 상완 <b class="num">273</b> mm, 전완 <b class="num">204</b> mm.</figcaption></figure>
+  <h3>JavaScript 시뮬레이터</h3>
+  <p>굴곡각별 장력·수축량·토크·회전수를 계산해 밴드 위치를 정했다.</p>
+  <figure><img src="img/fig_tradeoff.png" style="width:86%;margin:0 auto"><figcaption><span class="mono">그림 3</span>전완은 멀수록 장력↓ 수축↑ → <b class="num">60–90</b> mm. 상완은 높을수록 유리하나 겨드랑이 상한 → 윗단 <b class="num">214</b> mm.</figcaption></figure>
+</div>
+
+<div class="col">
+  <h2>밴드와 착용</h2>
+  <h3 class="f">팔 곡면에 맞춘 패턴</h3>
+  <p>3D 인체 형상을 바탕으로 <b>YUKA CAD 맞춤(MTM) 패턴</b> 기능으로 팔 곡면에 맞는 밴드 패턴을 만들었다. <span class="rev">절차 확인</span></p>
+  <h3>되접기 여밈</h3>
+  <p>네오프렌 밴드 끝을 출력한 링에 통과시켜 180° 접고 벨크로로 붙인다. 당긴 채로 <b>한 손</b>으로 고정할 수 있고, 링에서 가닥이 둘이 되어 조이는 힘이 약 2배가 된다.</p>
+  <figure><img src="img/band_foldback.png"><figcaption><span class="mono">그림 4</span>상완 380 mm · 전완 280 mm 전개도. 후크는 꼬리 바깥면.</figcaption></figure>
+  <h3>한 벌로 맞는 범위</h3>
+  <table class="dat">
+    <tr><th></th><th>폭</th><th>둘레 범위</th><th>모집단</th></tr>
+    <tr><td>상완</td><td class="num">50</td><td class="num">227–340</td><td class="num b">96.5 %</td></tr>
+    <tr><td>전완</td><td class="num">30</td><td class="num">176–240</td><td class="num b">98.1 %</td></tr>
+  </table>
+  <p class="note">되접힌 꼬리가 마운트(42 mm)를 넘을 수 없어 최소 둘레가 정해진다. Size Korea 평균·표준편차로 환산.</p>
+  <h3>조임 압력</h3>
+  <table class="dat">
+    <tr><th>당기는 힘</th><th class="num">3 N</th><th class="num">6 N</th><th class="num">12 N</th></tr>
+    <tr><td>상완</td><td class="num">10</td><td class="num">21</td><td class="num">41</td></tr>
+    <tr><td>전완</td><td class="num">23</td><td class="num b">46</td><td class="num b">92</td></tr>
+  </table>
+  <p class="note">단위 mmHg, 라플라스 식 p = T/(r·w). 지속 착용 한계 약 20 mmHg → 전완은 <b>손가락 하나 들어갈 정도</b>로만 조인다.</p>
+  <h3>어깨끈</h3>
+  <p>25 mm 웨빙이 마운트 앞 → 어깨 위 → 밴드 뒤 고리로 닫힌 고리를 이뤄 상완 밴드가 흘러내리지 않게 잡는다.</p>
+</div>
+
+<div class="col">
+  <h2>구동부와 제어</h2>
+  <h3 class="f">TSA 원리</h3>
+  <p class="eq">L² = p² + (r·θ)²</p>
+  <p>줄 두 가닥(축–줄 반지름 r = <span class="num">2</span> mm)을 θ만큼 꼬면 줄 길이 p가 직선거리 L로 줄어든다. 60° 굴곡에 필요한 꼬임은 약 <b class="num">13.9</b>회전이며, 안전 상한은 <span class="num">16</span>회전이다. <span class="rev">재계산</span></p>
+  <h3>부품</h3>
+  <figure><img src="img/plate_top.png" style="width:58%;margin:0 auto"><figcaption><span class="mono">그림 5</span>3D 프린팅 5종: 모터 마운트, 줄 허브, 전완 앵커, 방향전환 2종. 바느질 구멍으로 밴드에 박는다.</figcaption></figure>
+  <table class="dat">
+    <tr><td>모터</td><td>CubeMars GL30, 엔코더 AS5048A 내장</td></tr>
+    <tr><td>드라이버</td><td>SimpleFOC Mini (DRV8313, 2.5 A)</td></tr>
+    <tr><td>제어기</td><td>ESP32-C3, 스마트폰 Wi-Fi 조작</td></tr>
+    <tr><td>센서</td><td>MPU-6050 × 2 (상완 0x68 · 전완 0x69)</td></tr>
+    <tr><td>전원</td><td>12 V</td></tr>
+  </table>
+  <h3>자세 기반 중력보상</h3>
+  <ol>
+    <li>두 IMU로 팔의 <b>움직임</b>(굴곡각)을 감지</li>
+    <li>전완 무게의 설정 비율(기본 <span class="num">50</span> %)만큼 장력 산출</li>
+    <li>토크 제어로 착용자가 언제나 이길 수 있음</li>
+    <li><span class="num">110°</span> 이상 감기 금지 · 통신 <span class="num">0.4</span> s 끊기면 정지</li>
+  </ol>
+  <h3>IMU 오차</h3>
+  <p>저역통과 5 Hz에서 잡음은 <b class="num">0.05°</b>로 작고, 실제 오차는 영점(약 <span class="num">3°</span>)과 장착각이다 → 착용 직후 팔을 편 자세로 영점을 잡는다.</p>
+</div>
+
+<div class="col">
+  <h2>결과</h2>
+  <h3 class="f">보조력</h3>
+  <figure><img src="img/fig_control.png"><figcaption><span class="mono">그림 6</span>50 % 중력보상. 필요 모터 토크 최대 약 <b class="num">20</b> mN·m, GL30 정격 80 mN·m의 25 % 이하. <span class="rev">자세 가정 확인</span></figcaption></figure>
+  <h3>줄 장력 여유</h3>
+  <table class="dat">
+    <tr><th>굴곡</th><th>필요 장력</th><th>드라이버 연속</th><th>순간</th></tr>
+    <tr><td class="num">45°</td><td class="num">11.4 N</td><td class="num">38 N</td><td class="num">54 N</td></tr>
+    <tr><td class="num">60°</td><td class="num">7.8 N</td><td class="num">29 N</td><td class="num">41 N</td></tr>
+  </table>
+  <p class="note">드라이버 전류 한계(연속 1.75 A, 순간 2.5 A) 기준 <b>3–5배 여유</b>.</p>
+  <h3>구동 확인</h3>
+  <p>정렬 후 무부하 <span class="num">1.8</span> V에서 <b class="num">650–680</b> rpm 안정 회전. 기기 질량 <span class="rev">측정 예정</span></p>
+  <h3>착용성 평가</h3>
+  <p class="note" style="margin-top:0">20대 남성 10명 · 5점 리커트 · 비구동 상태</p>
+  <p>직접 착용 → 2분 적응 → 굽혔다 펴기 <span class="num">10</span>회 → <span class="num">60°</span>에서 5초 정지 <span class="num">3</span>회 → 착용한 채 응답.</p>
+  <table class="ev">
+    <tr><td>착용 과정</td><td>혼자 착용 · 착탈 시간 · 길이 적합</td></tr>
+    <tr><td>고정 상태</td><td>상완 · 전완 밴드 · 어깨끈</td></tr>
+    <tr><td>압박과 자극</td><td>조임 통증 · 눌림/쓸림 · 저림</td></tr>
+    <tr><td>무게와 동작</td><td>무게 부담 · 동작 방해</td></tr>
+    <tr><td>수용도</td><td>가정 착용 거부감 · 전반 만족</td></tr>
+  </table>
+  <p style="margin-top:2mm">5개 영역 <span class="num">13</span>문항. 항목별 평균 <span class="rev">11/19–21 평가 후 기입</span></p>
+</div>
+
+</div>
+
+<!-- 바닥 -->
+<div class="foot">
+  <div>
+    <h2>결론</h2>
+    <ul>
+      <li><b>인체치수 → 밴드 위치 → 맞춤 패턴 → 착용 평가</b>로 이어지는 설계 과정을 제시했다.</li>
+      <li>관절축 정렬 없이 줄 수축만으로 굴곡을 보조하며, 필요 토크는 모터 정격 안에 있다.</li>
+      <li>착용성 평가 결과 <span class="rev">결과 예정</span></li>
+    </ul>
+  </div>
+  <div>
+    <h2>한계와 향후 연구</h2>
+    <ul>
+      <li>20대 남성 평균 한 체형 기준 → 다양한 체형·연령</li>
+      <li>IMU는 움직임만 감지 → EMG 기반 의도 감지</li>
+      <li>구동 상태의 보조 효과·착용성 검증</li>
+    </ul>
+  </div>
+  <div class="ack">This work was supported by the National Research Foundation of Korea (NRF) grant funded by the Korea government (MSIT) (No. NRF-2022R1A2C1010072).</div>
+</div>
+
+</div>
+
+<script>
+// 도면 테두리 구역 눈금 (가로 1–8, 세로 A–F)
+const z=document.getElementById('zones'),W=821,H=1169,cols=8,rows=6;
+for(let i=0;i<cols;i++){for(const y of [1.2,H-6.2]){const s=document.createElement('span');s.textContent=cols-i;s.style.left=(W/cols*(i+.5)-1.2)+'mm';s.style.top=y+'mm';z.appendChild(s)}}
+for(let j=0;j<rows;j++){for(const x of [1.6,W-5.4]){const s=document.createElement('span');s.textContent='ABCDEF'[j];s.style.top=(H/rows*(j+.5)-2.4)+'mm';s.style.left=x+'mm';z.appendChild(s)}}
+</script>
+</body></html>
