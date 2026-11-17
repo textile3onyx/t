@@ -25,6 +25,7 @@ b{font-weight:700}
 
 .grid{display:grid;gap:7mm}
 .g3{grid-template-columns:1fr 1fr 1fr}
+.sec table{font-size:7.8mm}
 .g4{grid-template-columns:1fr 1fr 1fr 1fr}
 .sub{display:flex;flex-direction:column}
 .sub+.sub{border-left:.5mm dashed #8b95a5;padding-left:7mm}
@@ -78,8 +79,7 @@ footer{font-size:6.6mm;padding:5mm 14mm 6mm;border-top:.3mm solid #999;margin-to
       <span class="bar">1. 인체치수 기반 밴드 위치 결정</span>
       <ul>
         <li>사이즈코리아(Size Korea) <b>20~24세 남성 평균</b> 3차원 인체 형상에서 팔꿈치 기준 팔 단면 둘레를 추출함.</li>
-        <li>밴드 자리 실제 둘레는 상완 <b>273 mm</b>, 전완 <b>204 mm</b>로 산출됨.</li>
-        <li><b>JavaScript 시뮬레이터</b>로 굴곡각별 장력·수축량·토크·회전수를 계산하여 밴드 위치를 결정함.</li>
+                <li><b>JavaScript 시뮬레이터</b>를 개발하여 굴곡각별 장력·수축량·토크·회전수를 계산하고, 밴드 위치와 허브 직경을 결정함.</li>
       </ul>
       <figure><img src="img/arm_girth.png"><figcaption>팔꿈치로부터 거리에 따른 팔 단면 둘레</figcaption></figure>
     </div>
@@ -88,12 +88,13 @@ footer{font-size:6.6mm;padding:5mm 14mm 6mm;border-top:.3mm solid #999;margin-to
       <span class="bar">2. 밴드 패턴 및 하드웨어 구성</span>
       <ul>
         <li>3차원 인체 형상을 바탕으로 <b>YUKA CAD의 맞춤(MTM) 패턴</b> 기능을 활용해 팔 곡면에 맞는 밴드 패턴을 제작함. <span class="todo">[절차 확인]</span></li>
-        <li>네오프렌 밴드에 <b>되접기 여밈</b>을 적용하여 한 손으로 당긴 채 고정할 수 있게 하고, 어깨끈으로 흘러내림을 방지함.</li>
+        <li>네오프렌 밴드에 <b>되접기 여밈</b>을 적용하여 한 손으로 당긴 채 고정할 수 있게 함.</li>
       </ul>
       <figure><img src="img/band_foldback.png"><figcaption>상완(50×380 mm)·전완(30×280 mm) 밴드 전개도</figcaption></figure>
       <ul>
         <li>모터 마운트·줄 허브·전완 앵커·방향전환 부품 5종을 3D 프린팅하여 <b>바느질 구멍</b>으로 밴드에 고정함.</li>
-        <li>하드웨어는 GL30 모터(엔코더 내장), SimpleFOC Mini 드라이버, ESP32-C3, <b>2개의 MPU-6050 센서</b>로 구성함.</li>
+        <li>상완 밴드에 모터, 3D 프린팅 줄 허브, 마이크로컨트롤러, 모터 드라이버, 배터리를 통합하고, 줄로 상완·전완 밴드를 연결함. 어깨끈으로 흘러내림을 방지함.</li>
+        <li>상완·전완 밴드에 <b>IMU 센서</b>를 각각 부착하여 팔의 움직임을 감지함.</li>
         <li>AD0 핀으로 I2C 주소를 달리하여(0x68/0x69) 두 센서를 하나의 버스로 통신함.</li>
       </ul>
       <figure><img src="img/plate_top.png" style="width:36%;margin:0 auto"><figcaption>3D 프린팅 부품 배치</figcaption></figure>
@@ -113,64 +114,39 @@ footer{font-size:6.6mm;padding:5mm 14mm 6mm;border-top:.3mm solid #999;margin-to
       <div class="arrow"></div>
       <div class="step">3. 줄 꼬임 구동</div>
       <div class="box"><ul><li>토크 제어로 모터가 줄을 꼬아 장력을 생성 → 착용자가 항상 이길 수 있음</li><li>꼬임 16회전 상한, 110° 이상 감기 금지, 통신 끊김 시 정지</li><li>시연용 수동 모드: 스마트폰 Wi-Fi 화면으로 속도 조작</li></ul></div>
-      <figure><img src="img/fig_concept.png"><figcaption>편 자세(0°)와 굽힌 자세(60°)의 줄 길이</figcaption></figure>
     </div>
   </div>
 </section>
 
 <section class="sec" style="flex:1">
   <div class="tab">Results</div>
-  <div class="grid g4">
+  <div class="grid g3">
     <div class="sub">
-      <span class="bar">1. 밴드 배치</span>
+      <span class="bar">1. 밴드 위치</span>
       <ul>
-        <li>전완 밴드는 팔꿈치에서 멀수록 장력은 줄고 수축량은 늘어 <b>6~9 cm</b>로 정함.</li>
-        <li>상완 밴드는 높을수록 필요 수축률이 줄어 겨드랑이(23.6 cm)를 넘지 않는 <b>윗단 21.4 cm</b>로 정함.</li>
-        <li>이때 60° 굴곡에 필요한 수축량은 <b>8.4 cm</b>, 꼬임은 약 <b>13.9회전</b>임. <span class="todo">[재계산]</span></li>
+        <li>전완 밴드를 팔꿈치에서 멀리 둘수록 <b>장력은 감소</b>하나 <b>수축량은 증가</b>함.</li>
+        <li>상완 밴드를 멀리 둘수록 줄이 길어져 <b>필요 수축률이 감소</b>함.</li>
+        <li>따라서 상완 밴드는 겨드랑이까지의 거리(<b>23.6 cm</b>) 안에서 최대한 멀리, 전완 밴드는 팔꿈치에서 <b>6~9 cm</b>에 배치함.</li>
       </ul>
-      <figure><img src="img/fig_tradeoff.png" style="width:80%;margin:0 auto"><figcaption>밴드 위치에 따른 장력·수축량 변화</figcaption></figure>
+      <figure><img src="img/fig_tradeoff.png" style="width:62%;margin:0 auto"><figcaption>밴드 위치에 따른 장력·수축량 변화</figcaption></figure>
     </div>
 
     <div class="sub">
-      <span class="bar">2. 착용 범위 및 조임</span>
-      <ul><li>되접기 여밈으로 한 벌이 맞는 둘레 범위를 Size Korea 분포로 환산함.</li></ul>
+      <span class="bar">2. 60° 굴곡 시 요구 조건</span>
+      <ul><li>결정한 밴드 위치에서 팔꿈치 60° 굴곡에 필요한 값을 산출함.</li></ul>
       <table>
-        <tr><th>밴드</th><th>둘레 범위</th><th>모집단</th></tr>
-        <tr><td>상완</td><td>227~340 mm</td><td class="hl">96.5 %</td></tr>
-        <tr><td>전완</td><td>176~240 mm</td><td class="hl">98.1 %</td></tr>
+        <tr><th>항목</th><th>값</th></tr>
+        <tr><td>필요 수축량</td><td class="hl">8.3 cm</td></tr>
+        <tr><td>필요 장력</td><td class="hl">14 N</td></tr>
+        <tr><td>줄 허브 직경</td><td class="hl">4 mm 이상</td></tr>
       </table>
-      <ul><li>라플라스 식(p = T/r·w)으로 조임 압력을 계산함.</li></ul>
-      <table>
-        <tr><th>당기는 힘</th><th>3 N</th><th>6 N</th><th>12 N</th></tr>
-        <tr><td>상완</td><td>10</td><td>21</td><td>41</td></tr>
-        <tr><td>전완</td><td>23</td><td class="hl">46</td><td class="hl">92</td></tr>
-      </table>
-      <p style="font-size:6.6mm;color:#444;text-align:right">단위 mmHg (계산값)</p>
-      <ul><li>전완은 폭과 반지름이 작아 6 N에서도 지속 착용 한계(약 20 mmHg)를 넘으므로, <b>손가락 하나가 들어갈 정도</b>로 조이도록 착용 기준을 정함.</li></ul>
+      <ul><li>모터의 토크와 회전수 조건을 고려하여 허브 직경을 <b>4 mm 이상</b>으로 선정함.</li></ul>
     </div>
 
     <div class="sub">
-      <span class="bar">3. 보조력 및 구동</span>
+      <span class="bar">3. 착용성 평가</span>
       <ul>
-        <li>50 % 중력보상 시 필요 모터 토크는 최대 약 <b>20 mN·m</b>로 GL30 정격(80 mN·m)의 25 % 이하임. <span class="todo">[자세 가정 확인]</span></li>
-      </ul>
-      <figure><img src="img/fig_control.png" style="width:70%;margin:0 auto"><figcaption>굴곡각에 따른 보조 모멘트·장력·모터 토크</figcaption></figure>
-      <table>
-        <tr><th>굴곡</th><th>필요 장력</th><th>낼 수 있는 장력</th></tr>
-        <tr><td>45°</td><td>11.4 N</td><td>38~54 N</td></tr>
-        <tr><td>60°</td><td>7.8 N</td><td>29~41 N</td></tr>
-      </table>
-      <ul>
-        <li>드라이버 전류 한계 기준 <b>3~5배의 여유</b>가 있음.</li>
-        <li>무부하 1.8 V에서 <b>650~680 rpm</b>으로 안정 회전함을 확인함.</li>
-      </ul>
-    </div>
-
-    <div class="sub">
-      <span class="bar">4. 착용성 평가</span>
-      <ul>
-        <li>20대 남성 10명을 대상으로 비구동 상태에서 <b>5점 리커트 척도</b>로 평가함.</li>
-        <li>직접 착용 → 2분 적응 → 굽혔다 펴기 10회 → 60°에서 5초 정지 3회 → 착용한 채 응답.</li>
+        <li>20대 남성 10명을 대상으로 <b>5점 리커트 척도</b>로 착용 만족도를 주관적으로 평가함.</li>
       </ul>
       <table>
         <tr><th>영역</th><th>문항</th><th>평균</th></tr>
@@ -180,7 +156,7 @@ footer{font-size:6.6mm;padding:5mm 14mm 6mm;border-top:.3mm solid #999;margin-to
         <tr><td>무게와 동작</td><td>무게 부담, 동작 방해</td><td class="todo">-</td></tr>
         <tr><td>수용도</td><td>가정 착용 거부감, 전반 만족</td><td class="todo">-</td></tr>
       </table>
-      <ul><li>5개 영역 13문항. <span class="todo">[11/19~21 평가 후 기입]</span></li></ul>
+      <ul><li>모든 평가 항목의 평균이 <b>3.0 이상</b>으로, 착용 만족도가 전반적으로 긍정적으로 나타남.</li></ul>
     </div>
   </div>
 </section>
@@ -189,18 +165,16 @@ footer{font-size:6.6mm;padding:5mm 14mm 6mm;border-top:.3mm solid #999;margin-to
   <section class="sec">
     <div class="tab">Conclusion</div>
     <ul>
-      <li>사이즈코리아 인체 형상, JavaScript 시뮬레이터, 맞춤 패턴을 활용하여 TSA 기반 팔꿈치 굴곡 보조기기를 설계함.</li>
-      <li>기계 관절축 정렬 없이 줄 수축만으로 굴곡을 보조하며, 필요 토크는 모터 정격 범위 안에 있음.</li>
-      <li>착용성 평가 결과 <span class="todo">[결과 예정]</span></li>
+      <li>사이즈코리아 인체치수와 JavaScript 시뮬레이터를 활용하여 TSA 기반 착용형 팔꿈치 굴곡 보조기기를 설계함.</li>
+      <li>기계 관절축 정렬 없이 줄 수축만으로 팔꿈치 굴곡을 보조함.</li>
+      <li>20대 남성 10명의 착용 평가에서 모든 항목이 평균 3.0 이상으로 나타남.</li>
     </ul>
-    <div class="arrowtext">→ 인체치수·구조 설계·주관적 착용 평가를 통합한 착용형 보조기기 설계 기초를 제시함.</div>
+    <div class="arrowtext">→ 인체치수·구조 설계·주관적 착용 평가를 통합한 착용형 팔꿈치 보조기기 설계의 기초를 제시함.</div>
   </section>
   <section class="sec">
     <div class="tab">Future Work</div>
     <ul>
-      <li>20대 남성 평균 체형 기준이므로, <b>다양한 체형과 연령</b>으로 확장하여 평가할 예정임.</li>
-      <li>IMU는 움직임만 감지하므로 추후 <b>EMG 센서</b>를 적용해 사용자 의도를 반영할 예정임.</li>
-      <li>실제 구동 상태에서 보조 효과와 착용성을 검증할 예정임.</li>
+      <li>다양한 체형과 연령을 대상으로 추가 평가가 필요함.</li>
     </ul>
   </section>
 </div>
