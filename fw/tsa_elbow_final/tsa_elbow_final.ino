@@ -253,8 +253,10 @@ void setup() {
   strZeroAngle = motor.shaft_angle;
 
   WiFi.mode(WIFI_AP);
-  WiFi.softAP("TSA-ELBOW", "tsa12345");
-  WiFi.setTxPower(WIFI_POWER_8_5dBm);                // SuperMini 는 출력을 낮춰야 연결이 안정적인 경우가 많다
+  WiFi.setTxPower(WIFI_POWER_8_5dBm);                // SuperMini: AP 켜기 전에 출력을 낮춰야 연결이 잡히는 경우가 많다
+  WiFi.softAP("TSA-ELBOW", "tsa12345", 6);           // 채널 6 고정
+  WiFi.setTxPower(WIFI_POWER_8_5dBm);
+  Serial.printf("와이파이 TSA-ELBOW 시작, 주소 %s\n", WiFi.softAPIP().toString().c_str());
   server.on("/", hRoot); server.on("/s", hState); server.on("/do", hDo);
   server.begin();
   if (focOK) xTaskCreate(focTask, "foc", 4096, NULL, 5, NULL);   // 정렬 실패면 모터를 돌리지 않는다  // loop() 는 우선순위 1
