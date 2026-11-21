@@ -6,6 +6,7 @@
  *   - 모터 별도 태스크를 없애고 loop() 하나로 (태스크가 CPU 를 잡아 폰 응답이 수 초 밀리던 문제)
  *   - 폰 끊김 판정 0.4 s → 1.5 s  (와이파이가 잠깐 늦을 때 멈췄다 당기던 현상)
  *   - 수동 모드: 속도 자체에 걸던 브레이크 제거, 목표 속도와의 차이에만 감쇠
+ *   - 시리얼 모니터가 닫혀 있어도 멈추지 않음 (USB 출력 대기 제거)
  *   - 화면에 응답 시간(ms) 표시, 시리얼 i1.0 / s 로 폰 없이 시험
  *
  *  v3 변경 (v2 대비):
@@ -231,6 +232,9 @@ void control(float dt) {
 void setup() {
   pinMode(PIN_EN, OUTPUT); digitalWrite(PIN_EN, LOW);
   Serial.begin(115200);
+#if ARDUINO_USB_CDC_ON_BOOT
+  Serial.setTxTimeoutMs(0);          // 시리얼 모니터가 닫혀 있어도 글자 보내다 멈추지 않게
+#endif
   L0 = strDist(0);
 
   Wire.begin(PIN_SDA, PIN_SCL, 400000);
@@ -301,7 +305,7 @@ void loop() {
     else if (c == "s") { testI = 0; mode = 0; }
   }
   if (us - tWeb >= 5000) { server.handleClient(); tWeb = us; }   // 폰 요청
-  if (millis() - tLog >= 1000) {                     // 문제 생기면 이 줄을 보내주세요
+  if (Serial && millis() - tLog >= 1000) {           // 모니터가 열려 있을 때만 출력
     tLog = millis();
     uint32_t n = focCount;
     Serial.printf("FOC %lu Hz | 모드 %d | I %.2f A | 속도 %.1f 바퀴/s | 꼬임 %.2f 바퀴 | IMU %s | 팔꿈치 %.1f\n",
