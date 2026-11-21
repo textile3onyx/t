@@ -3,7 +3,7 @@
  *  최종판 = v3 + 정렬 실패 시 모터를 끄고 화면에 알림
  *  최종판-2: 대화에서 찾았던 버그 다시 반영
  *   - 모드는 버튼 명령으로만 바뀜 (늦게 온 상태 요청이 모드를 되돌리던 버그)
- *   - 제어 계산을 모터 태스크로 옮김 (웹 처리 중에도 5 ms 마다 계산)
+ *   - 모터 별도 태스크를 없애고 loop() 하나로 (태스크가 CPU 를 잡아 폰 응답이 수 초 밀리던 문제)
  *   - 폰 끊김 판정 0.4 s → 1.5 s  (와이파이가 잠깐 늦을 때 멈췄다 당기던 현상)
  *   - 수동 모드: 속도 자체에 걸던 브레이크 제거, 목표 속도와의 차이에만 감쇠
  *   - 화면에 응답 시간(ms) 표시, 시리얼 i1.0 / s 로 폰 없이 시험
@@ -227,18 +227,6 @@ void control(float dt) {
   Icmd = constrain(If + Ia, -I_LIMIT, I_LIMIT);
 }
 
-// ------------------------------------------------------------------ FOC 태스크
-// loop() 보다 우선순위가 높아서, 웹 요청을 처리하는 도중에도 1 ms 마다 끼어든다.
-uint32_t tCtlFoc = 0;
-void focTask(void *) {
-  for (;;) {
-    for (int i = 0; i < 4; i++) { motor.loopFOC(); motor.move(Icmd); focCount++; }
-    uint32_t us = micros();                          // 제어 계산도 여기서 — 웹 처리에 안 밀린다
-    if (us - tCtlFoc >= 5000) { control((us - tCtlFoc) * 1e-6f); tCtlFoc = us; }
-    vTaskDelay(1);                                   // loop() 에도 시간을 준다
-  }
-}
-
 // ------------------------------------------------------------------ setup
 void setup() {
   pinMode(PIN_EN, OUTPUT); digitalWrite(PIN_EN, LOW);
@@ -279,16 +267,20 @@ void setup() {
   Serial.printf("와이파이 TSA-ELBOW 시작, 주소 %s\n", WiFi.softAPIP().toString().c_str());
   server.on("/", hRoot); server.on("/s", hState); server.on("/do", hDo);
   server.begin();
-  if (focOK) xTaskCreate(focTask, "foc", 4096, NULL, 5, NULL);   // 정렬 실패면 모터를 돌리지 않는다  // loop() 는 우선순위 1
 }
 
 // ------------------------------------------------------------------ loop
 void loop() {
-  static uint32_t tCtl = 0, tImu = 0, tRetry = 0, tLog = 0, lastFoc = 0;
+  static uint32_t tCtl = 0, tImu = 0, tRetry = 0, tLog = 0, tWeb = 0, lastFoc = 0;
   static bool which = false;
-  uint32_t us = micros();
 
-  if (us - tImu >= 5000) {                           // IMU 한 번에 하나씩, 각 100 Hz
+  // 모터: 매 바퀴마다 (모터 테스트 코드와 같은 방식)
+  if (focOK) { motor.loopFOC(); motor.move(Icmd); focCount++; }
+
+  uint32_t us = micros();
+  if (us - tCtl >= 5000) { control((us - tCtl) * 1e-6f); tCtl = us; }   // 힘 계산 200 Hz
+
+  if (us - tImu >= 10000) {                          // IMU 한 번에 하나씩, 각 50 Hz
     tImu = us; float a;
     if (imuOK) {
       if (mpuAngle(which ? IMU_FORE : IMU_UPPER, a)) {
@@ -298,7 +290,7 @@ void loop() {
       which = !which;
       phi   = IMU_SIGN * wrap180(angF - zeroF);
       elbow = IMU_SIGN * wrap180((angF - zeroF) - (angU - zeroU));
-    } else if (millis() - tRetry > 1000) {           // 끊겼으면 1초마다 다시 시도
+    } else if (mode == 0 && millis() - tRetry > 3000) {   // 끊겼으면 정지 중에만 3초마다 다시 시도
       tRetry = millis();
       imuOK = mpuInit(IMU_UPPER) && mpuInit(IMU_FORE);
     }
@@ -308,7 +300,7 @@ void loop() {
     if (c.startsWith("i")) { testI = c.substring(1).toFloat(); mode = 4; }
     else if (c == "s") { testI = 0; mode = 0; }
   }
-  server.handleClient();
+  if (us - tWeb >= 5000) { server.handleClient(); tWeb = us; }   // 폰 요청
   if (millis() - tLog >= 1000) {                     // 문제 생기면 이 줄을 보내주세요
     tLog = millis();
     uint32_t n = focCount;
