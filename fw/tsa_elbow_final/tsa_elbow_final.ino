@@ -6,6 +6,7 @@
  *   - 모터 별도 태스크를 없애고 loop() 하나로 (태스크가 CPU 를 잡아 폰 응답이 수 초 밀리던 문제)
  *   - 폰 끊김 판정 0.4 s → 1.5 s  (와이파이가 잠깐 늦을 때 멈췄다 당기던 현상)
  *   - 수동 모드: 속도 자체에 걸던 브레이크 제거, 목표 속도와의 차이에만 감쇠
+ *   - 전압 잘림 수정 (driver 12 V / motor 6 V), 전류 상한 2.0 A, 수동 게인·최고속도 상향
  *   - 시리얼 모니터가 닫혀 있어도 멈추지 않음 (USB 출력 대기 제거)
  *   - 화면에 응답 시간(ms) 표시, 시리얼 i1.0 / s 로 폰 없이 시험
  *
@@ -57,12 +58,12 @@ const float KV      = 255.0f;     // rpm/V
 const float KT      = 0.0376f;    // 토크상수 Nm/A
 
 // ------------------------------------------------------------------ 튜닝 (단위: A)
-const float I_LIMIT  = 1.5f;      // 전체 전류 상한 — 드라이버 연속 1.75 A 아래
-const float I_MANUAL = 1.5f;      // 수동 모드 상한
+const float I_LIMIT  = 2.0f;      // 전체 전류 상한 — 드라이버 최대 2.5 A 아래
+const float I_MANUAL = 2.0f;      // 수동 모드 상한
 const float I_FOLLOW = 0.5f;      // 자동 모드에서 따라가기에 쓰는 상한
 const float KP = 0.30f, KD = 0.01f;         // 자동 모드 따라가기용 (A/rad) — 부드럽게
-const float KP_MAN = 1.2f;            // 수동·풀기: 위치 오차 → 전류 (A/rad)
-const float KV_MAN = 0.04f;           // 수동·풀기: 속도 오차 → 전류 (A per rad/s)
+const float KP_MAN = 3.0f;            // 수동·풀기: 위치 오차 → 전류 (A/rad)
+const float KV_MAN = 0.15f;           // 수동·풀기: 속도 오차 → 전류 (A per rad/s)
 const float LAG_MAX = 0.6f;           // 목표가 실제보다 앞서갈 수 있는 최대 (rad)
 const float SLACK_MM    = 4.0f;   // 받쳐주지 않을 때 줄 여유
 const float F_RATE      = 20.0f;  // 장력 변화 속도 제한 (N/s)
@@ -78,7 +79,7 @@ WebServer         server(80);
 // ------------------------------------------------------------------ 상태
 volatile int mode = 0;
 volatile float sliderV = 0, assist = 0.5f;
-const float MANUAL_MAX_TPS = 8.0f;   // 슬라이더 ±100 일 때 초당 바퀴 수
+const float MANUAL_MAX_TPS = 10.0f;   // 슬라이더 ±100 일 때 초당 바퀴 수
 uint32_t lastCmdMs = 0;
 volatile float testI = 0;             // 시리얼 i 명령 (모드 4)
 const uint32_t STALE_MS = 1500;       // 폰 신호가 이만큼 끊기면 멈춤
@@ -245,13 +246,13 @@ void setup() {
   sensor.init(&SPI);
   motor.linkSensor(&sensor);
   driver.voltage_power_supply = 12.0f;
-  driver.voltage_limit = 8.0f;
+  driver.voltage_limit = 12.0f;                     // 전원 전체를 쓴다
   driver.init();
   motor.linkDriver(&driver);
   motor.phase_resistance = R_PHASE;                  // 이 값이 있으면 move() 의 단위가 A 가 된다
   motor.KV_rating = KV;                              // 역기전력 보상
   motor.current_limit = I_LIMIT;
-  motor.voltage_limit = 8.0f;                        // 전류 상한이 먼저 걸리므로 여유 있게
+  motor.voltage_limit = 6.0f;                        // 드라이버 한계의 절반 — 넘으면 사인파가 잘림
   motor.voltage_sensor_align = 1.5f;
   motor.torque_controller = TorqueControlType::voltage;
   motor.controller = MotionControlType::torque;
@@ -351,7 +352,7 @@ input[type=range]{width:100%;height:44px;accent-color:#4cc5d6}
 <div class="card"><div class="lab">모드</div>
  <div class="modes"><button data-m="1">수동</button><button data-m="2">자동</button></div>
  <div id="msg"></div></div>
-<div class="card" id="manual"><div class="lab">수동 — 속도 −100 ~ +100  (100 = 초당 8바퀴)</div>
+<div class="card" id="manual"><div class="lab">수동 — 속도 −100 ~ +100  (100 = 초당 10바퀴)</div>
  <div class="big" id="val">0</div>
  <input id="sl" type="range" min="-100" max="100" value="0">
  <div class="ends"><span>◀ 풀기</span><span>감기 ▶</span></div>
@@ -366,7 +367,7 @@ input[type=range]{width:100%;height:44px;accent-color:#4cc5d6}
 <script>
 const $=id=>document.getElementById(id);let mode=0,busy=false,miss=0,msgT=0;
 const sl=$('sl');
-function upd(){$('val').textContent=sl.value;$('spv').textContent=(sl.value*0.08).toFixed(1)+' 바퀴/초'}
+function upd(){$('val').textContent=sl.value;$('spv').textContent=(sl.value*0.10).toFixed(1)+' 바퀴/초'}
 function zero(){sl.value=0;upd()}
 ['pointerup','pointercancel','touchend','mouseup','blur'].forEach(e=>sl.addEventListener(e,()=>{if(!$('hold').checked)zero()}));
 sl.addEventListener('input',upd);
