@@ -8,7 +8,7 @@
  *   - 수동 모드: 속도 자체에 걸던 브레이크 제거, 목표 속도와의 차이에만 감쇠
  *   - 전압 잘림 수정 (driver 12 V / motor 6 V), 전류 상한 2.0 A, 수동 게인·최고속도 상향
  *   - 따라감 학습: 수동으로 감으며 (각도, 꼬임)을 기록·저장 → 자동이 그 기록대로 따라감
- *   - 수동은 각도·0점 제한 없이 자유롭게 (꼬임 ±16 바퀴만)
+ *   - 수동은 제한 없이 자유롭게 (16 바퀴 넘으면 화면 경고만)
  *   - 자동 모드 = 팔꿈치 각도만큼 줄을 감아 따라감 (수동과 같은 세기)
  *   - 버튼 단순화: 줄 0점은 켤 때 자동, IMU 영점은 "자동" 누를 때 자동, 각도는 절댓값(부호 버튼 없음)
  *     ※ 전원을 켤 때 줄이 꼬이지 않은 상태여야 함
@@ -225,12 +225,10 @@ void control(float dt) {
 
   if (mode == 1) {                                   // ---- 수동
     float v = sliderV * 0.01f * MANUAL_MAX_TPS * 6.2832f;
-    // 수동은 사람이 직접 조작하므로 IMU 각도·0점 제한을 걸지 않는다 (꼬임 ±16 바퀴만 제한)
+    // 수동은 사람이 직접 조작하므로 제한 없음 (16 바퀴 넘으면 화면에 빨간 경고만)
     tgt += v * dt;
-    tgt = constrain(tgt, -thMax, thMax);
     if (teaching && imuOK && nT < NT && elbow > tE[nT-1] + 2.0f) {   // 2° 올라갈 때마다 기록
       tE[nT] = elbow; tT[nT] = max(th, tT[nT-1]); nT++; }
-    if ((tgt <= -thMax && v < 0) || (tgt >= thMax && v > 0)) v = 0;
     tgt = constrain(tgt, th - LAG_MAX, th + LAG_MAX);   // 막혔을 때 목표가 혼자 달아나지 않게
     Fcmd = 0;
     Icmd = constrain(KP_MAN * (tgt - th) + KV_MAN * (v - w), -I_MANUAL, I_MANUAL);
@@ -502,7 +500,7 @@ function show(s,ms){
  drawArm(s);
  $('link').className='ok';$('link').textContent='연결됨 · '+ms+' ms';
  if(Date.now()-lastAct>800){mode=s.m;paint()}
- $('el').textContent=s.io?s.el.toFixed(1):'–';$('tn').textContent=s.tn.toFixed(1);$('fo').textContent=s.f.toFixed(1);$('cu').textContent=s.i.toFixed(2);
+ $('el').textContent=s.io?s.el.toFixed(1):'–';$('tn').textContent=s.tn.toFixed(1);$('tn').style.color=Math.abs(s.tn)>16?'#ff6b5e':'';$('fo').textContent=s.f.toFixed(1);$('cu').textContent=s.i.toFixed(2);
  $('zi').classList.toggle('done',!!s.zi);$('ts').classList.toggle('done',!!s.tc);
  $('tinfo').textContent=s.tc?`학습 중 — 기록 ${s.nt}개`:(s.nt>=2?`학습된 기록 ${s.nt}개 — 자동은 이 기록대로 따라갑니다`:'학습 기록 없음 — 자동은 설계 계산값을 씁니다');
  if(s.msg){$('msg').textContent=s.msg;msgT=Date.now()}else if(Date.now()-msgT>3000)$('msg').textContent='';
