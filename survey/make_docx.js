@@ -133,7 +133,7 @@ const doc = new Document({
         children: [run('TSA 팔꿈치 굴곡 보조기기 착용감 평가', { size: 30, bold: true })],
         spacing: { after: 60 },
       }),
-      p('국립금오공과대학교 소재디자인공학과 어패럴공학연구실  |  책임연구자 이희란  |  수행 최현진',
+      p('국립금오공과대학교 소재디자인공학과 어패럴공학연구실  |  책임연구자 이희란  |  수행 구세문',
         { size: 17, color: '444444', spacing: { after: 160 } }),
 
       h2('연구 참여 안내'),
@@ -143,7 +143,7 @@ const doc = new Document({
         spacing: { after: 50 },
       })),
       new Paragraph({
-        children: [run('문의: 최현진 (어패럴공학연구실)   ', { size: 17 }), blank(30)],
+        children: [run('문의: 구세문 (어패럴공학연구실)   ', { size: 17 }), blank(30)],
         numbering: { reference: 'notice', level: 0 },
         spacing: { after: 120 },
       }),
