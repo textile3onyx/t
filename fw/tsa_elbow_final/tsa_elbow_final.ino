@@ -57,7 +57,6 @@ const float R_STR   = 2.0f;     // 축~줄 거리
 const float A_U = 167.8f, H_U = 69.5f;   // 줄 출구: 팔꿈치에서 거리, 팔 축에서 높이
 const float A_F = 70.5f,  H_F = 45.5f;   // 앵커 줄구멍
 const float M_MAX   = 2.88f;    // 전완+손 최대 중력 모멘트 (Nm) — 시뮬레이터 값
-const float MAX_TURNS = 16.0f;  // 꼬임 상한
 const float ELBOW_MAX = 110.0f; // 이 각도를 넘으면 감기 금지
 
 // ------------------------------------------------------------------ 모터 상수 (GL30 KV290, 실측 KV 약 255)
@@ -216,7 +215,6 @@ void hState() {
 void control(float dt) {
   if (!focOK) { mode = 0; Icmd = 0; return; }
   float th = motor.shaft_angle - strZeroAngle, w = motor.shaft_velocity;
-  float thMax = MAX_TURNS * 6.2832f;
   bool stale = millis() - lastCmdMs > STALE_MS;      // 폰과 끊기면
   if (stale && mode != 4) { sliderV = 0; if (mode == 2) mode = 0; }
   if (mode == 4) { Icmd = constrain(testI, -I_LIMIT, I_LIMIT); tgt = th; return; }   // 시리얼 시험
@@ -251,10 +249,9 @@ void control(float dt) {
   if (nT >= 2) {                                     // 학습한 표가 있으면 그대로 따른다
     float t0 = tT[0];
     want = t0 + (tableTwist(e) - t0) * assist - 1.0f;   // 1 rad 정도 살짝 느슨하게
-    want = constrain(want, -thMax, thMax);
   } else {                                           // 없으면 설계 치수로 계산
     float x = (L0 - strDist(e)) * assist - SLACK_MM;
-    want = constrain(twistFor(x), 0, thMax);
+    want = twistFor(x);
   }
   float vmax = MANUAL_MAX_TPS * 6.2832f, prev = tgt;
   tgt += constrain(want - tgt, -vmax * dt, vmax * dt);   // 최고 속도 안에서 목표로
