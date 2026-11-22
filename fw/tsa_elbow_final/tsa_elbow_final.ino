@@ -360,17 +360,8 @@ input[type=range]{width:100%;height:44px;accent-color:#4cc5d6}
  <div class="modes"><button data-m="1">수동</button><button data-m="2">자동</button></div>
  <div id="msg"></div></div>
 <div class="card"><div class="lab">팔 자세 — 실시간 <span id="zw" style="color:#f0b072"></span></div>
- <svg id="arm" viewBox="0 0 240 190" style="width:100%;height:auto;display:block">
-  <line x1="20" y1="30" x2="220" y2="30" stroke="#2b343d" stroke-dasharray="4 4"/>
-  <g id="armg">
-   <line id="ua" x1="120" y1="30" x2="120" y2="105" stroke="#93a1ae" stroke-width="14" stroke-linecap="round"/>
-   <line id="fa" x1="120" y1="105" x2="120" y2="170" stroke="#4cc5d6" stroke-width="12" stroke-linecap="round"/>
-   <path id="arc" d="" fill="none" stroke="#f0b072" stroke-width="2"/>
-   <circle cx="120" cy="30" r="9" fill="#e8edf2"/>
-   <circle id="ej" cx="120" cy="105" r="7" fill="#11151a" stroke="#e8edf2" stroke-width="2"/>
-  </g>
-  <text id="elt" x="0" y="0" fill="#f0b072" font-size="16" font-weight="600"></text>
- </svg>
+ <canvas id="arm" style="width:100%;height:260px;display:block;touch-action:none"></canvas>
+ <div style="font-size:11px;color:#93a1ae;text-align:center">손가락으로 좌우로 밀면 돌려 볼 수 있어요</div>
  <div class="grid" style="grid-template-columns:1fr 1fr 1fr;margin-top:6px"><div><b id="upv">–</b><span>상완 기울기 °</span></div><div><b id="phv">–</b><span>전완 기울기 °</span></div><div><b id="el2">–</b><span>팔꿈치 °</span></div></div></div>
 <div class="card" id="manual"><div class="lab">수동 — 속도 −100 ~ +100  (100 = 초당 10바퀴)</div>
  <div class="big" id="val">0</div>
@@ -401,17 +392,49 @@ $('un').onclick=()=>{zero();act('un')};
 let lastAct=0;
 function paint(){document.querySelectorAll('.modes button').forEach(b=>b.classList.toggle('on',+b.dataset.m===mode));
  $('manual').classList.toggle('off',mode!==1);$('auto').classList.toggle('off',mode!==2)}
+// ---- 3D 팔 (외부 라이브러리 없이 캔버스로) ----
+const cv=$('arm'),cx=cv.getContext('2d');let W=0,H=0,yaw=-0.35,tgtA={u:0,e:0},curA={u:0,e:0},drag=null;
+function fit(){const d=devicePixelRatio||1;W=cv.clientWidth;H=cv.clientHeight;cv.width=W*d;cv.height=H*d;cx.setTransform(d,0,0,d,0,0)}
+addEventListener('resize',fit);fit();
+cv.addEventListener('pointerdown',e=>{drag=e.clientX;cv.setPointerCapture(e.pointerId)});
+cv.addEventListener('pointermove',e=>{if(drag!==null){yaw+=(e.clientX-drag)*0.01;drag=e.clientX}});
+cv.addEventListener('pointerup',()=>drag=null);
+function P(v){const cy=Math.cos(yaw),sy=Math.sin(yaw),x=v[0]*cy+v[2]*sy,z=-v[0]*sy+v[2]*cy;
+ const pt=0.28,y=v[1]*Math.cos(pt)-z*Math.sin(pt),z2=v[1]*Math.sin(pt)+z*Math.cos(pt);
+ const k=420/(420+z2);return {x:W/2+x*k,y:H*0.18-y*k,k:k,z:z2}}
+const add=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];
+function shade(c,k){const n=parseInt(c.slice(1),16),f=x=>Math.max(0,Math.min(255,Math.round(x*k)));
+ return `rgb(${f(n>>16)},${f(n>>8&255)},${f(n&255)})`}
+function tube(a,b,ra,rb,col,cap=true){            // 원통(끝이 둥근) 한 토막
+ const p=P(a),q=P(b),A=ra*p.k,B=rb*q.k,dx=q.x-p.x,dy=q.y-p.y,l=Math.hypot(dx,dy)||1,nx=-dy/l,ny=dx/l;
+ const g=cx.createLinearGradient(p.x+nx*A,p.y+ny*A,p.x-nx*A,p.y-ny*A);
+ g.addColorStop(0,shade(col,0.55));g.addColorStop(0.35,shade(col,1.25));g.addColorStop(0.6,col);g.addColorStop(1,shade(col,0.35));
+ cx.fillStyle=g;cx.beginPath();cx.moveTo(p.x+nx*A,p.y+ny*A);cx.lineTo(q.x+nx*B,q.y+ny*B);cx.lineTo(q.x-nx*B,q.y-ny*B);cx.lineTo(p.x-nx*A,p.y-ny*A);cx.closePath();cx.fill();
+ if(cap)for(const [o,R] of [[p,A],[q,B]]){const rg=cx.createRadialGradient(o.x-R*.3,o.y-R*.3,R*.1,o.x,o.y,R);
+  rg.addColorStop(0,shade(col,1.25));rg.addColorStop(1,shade(col,0.4));cx.fillStyle=rg;cx.beginPath();cx.arc(o.x,o.y,R,0,7);cx.fill()}}
+function render(){
+ curA.u+=(tgtA.u-curA.u)*0.25;curA.e+=(tgtA.e-curA.e)*0.25;
+ cx.clearRect(0,0,W,H);
+ const r=Math.PI/180,u=curA.u*r,f=(curA.u+curA.e)*r,L1=95,L2=85;
+ const S=[0,0,0],E=[L1*Math.sin(u),-L1*Math.cos(u),0],Hd=[E[0]+L2*Math.sin(f),E[1]-L2*Math.cos(f),0];
+ const g=P([0,-185,0]);cx.fillStyle='rgba(0,0,0,.35)';cx.beginPath();cx.ellipse(g.x,g.y,70*g.k,14*g.k,0,0,7);cx.fill();
+ const SK='#c9a88a',BD='#1f8a96',items=[];
+ const seg=(a,b,ra,rb,c,cap=true)=>items.push({z:(P(a).z+P(b).z)/2-(cap?0:1),d:()=>tube(a,b,ra,rb,c,cap)});
+ seg(S,E,21,16,SK);seg(E,Hd,15,11,SK);
+ seg(add(S,E,0.55),add(S,E,0.78),23,21,BD,false);          // 상완 밴드
+ seg(add(E,Hd,0.12),add(E,Hd,0.32),17,16,BD,false);        // 전완 밴드
+ const mPos=add(S,E,0.66),M=[mPos[0]+Math.cos(u)*30,mPos[1]+Math.sin(u)*30,0];
+ seg([M[0]-Math.sin(u)*9,M[1]+Math.cos(u)*9,0],[M[0]+Math.sin(u)*9,M[1]-Math.cos(u)*9,0],11,11,'#3a4048');   // 모터
+ items.sort((a,b)=>b.z-a.z).forEach(o=>o.d());
+ const aPos=add(E,Hd,0.22),A=[aPos[0]+Math.cos(f)*18,aPos[1]+Math.sin(f)*18,0];
+ const pm=P(M),pa=P(A);cx.strokeStyle='#f08a3c';cx.lineWidth=3;cx.beginPath();cx.moveTo(pm.x,pm.y);cx.lineTo(pa.x,pa.y);cx.stroke();
+ const pe=P(E);cx.fillStyle='#f0b072';cx.font='600 20px sans-serif';cx.textAlign='right';cx.fillText(curA.e.toFixed(0)+'°',pe.x-26,pe.y+6);
+ requestAnimationFrame(render)}
+requestAnimationFrame(render);
 function drawArm(s){
  if(!s.io){$('zw').textContent='IMU 없음';return}
  $('zw').textContent=s.zi?'':'(① 영점 전 — 팔 펴고 영점을 누르세요)';
- const r=Math.PI/180,sx=120,sy=30,L1=75,L2=65;
- const u=s.up*r,f=(s.up+s.el)*r;
- const ex=sx+L1*Math.sin(u),ey=sy+L1*Math.cos(u),hx=ex+L2*Math.sin(f),hy=ey+L2*Math.cos(f);
- const set=(id,a)=>{for(const k in a)$(id).setAttribute(k,a[k].toFixed?a[k].toFixed(1):a[k])};
- set('ua',{x2:ex,y2:ey});set('fa',{x1:ex,y1:ey,x2:hx,y2:hy});set('ej',{cx:ex,cy:ey});
- const R=22,a0=u,a1=f,large=Math.abs(s.el)>180?1:0,sw=s.el>0?0:1;
- $('arc').setAttribute('d',Math.abs(s.el)<2?'':`M${ex+R*Math.sin(a0)} ${ey+R*Math.cos(a0)} A${R} ${R} 0 ${large} ${sw} ${ex+R*Math.sin(a1)} ${ey+R*Math.cos(a1)}`);
- const t=$('elt');t.textContent=s.el.toFixed(0)+'°';t.setAttribute('x',(ex+14).toFixed(1));t.setAttribute('y',(ey-12).toFixed(1));
+ tgtA.u=s.up;tgtA.e=s.el;
  $('upv').textContent=s.up.toFixed(1);$('phv').textContent=s.ph.toFixed(1);$('el2').textContent=s.el.toFixed(1);
 }
 function show(s,ms){
