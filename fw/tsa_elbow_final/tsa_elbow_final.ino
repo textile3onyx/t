@@ -409,19 +409,26 @@ const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],nrm=v=>{const l=Math.hypot(...v
 const crs=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
 function line(pts,al,w){cx.strokeStyle=`rgba(${C},${al})`;cx.lineWidth=w||1;cx.beginPath();
  pts.forEach((v,i)=>{const p=P(v);i?cx.lineTo(p.x,p.y):cx.moveTo(p.x,p.y)});cx.stroke()}
-function wire(a,b,ra,rb){                 // 와이어프레임 원통
- const d=nrm(sub(b,a)),n1=[0,0,1],n2=crs(d,n1),NR=7,NS=18;
+function wire(a,b,ra,rb){                 // 깔끔한 반투명 원통
+ const d=nrm(sub(b,a)),n1=[0,0,1],n2=crs(d,n1),NS=32;
  const pt=(t,ph)=>{const c=add(a,b,t),r=ra+(rb-ra)*t;return [c[0]+r*(Math.cos(ph)*n1[0]+Math.sin(ph)*n2[0]),c[1]+r*(Math.cos(ph)*n1[1]+Math.sin(ph)*n2[1]),c[2]+r*(Math.cos(ph)*n1[2]+Math.sin(ph)*n2[2])]};
- // 은은한 면
  const p=P(a),q=P(b),A=ra*p.k,B=rb*q.k,dx=q.x-p.x,dy=q.y-p.y,l=Math.hypot(dx,dy)||1,nx=-dy/l,ny=dx/l;
- cx.fillStyle=`rgba(${C},0.07)`;cx.beginPath();cx.moveTo(p.x+nx*A,p.y+ny*A);cx.lineTo(q.x+nx*B,q.y+ny*B);cx.lineTo(q.x-nx*B,q.y-ny*B);cx.lineTo(p.x-nx*A,p.y-ny*A);cx.fill();
- for(let i=0;i<=NR;i++){const t=i/NR,r=[];for(let j=0;j<=NS;j++)r.push(pt(t,j/NS*6.2832));line(r,i%NR?0.35:0.8,i%NR?1:1.5)}
- for(let j=0;j<12;j++){const r=[];for(let i=0;i<=6;i++)r.push(pt(i/6,j/12*6.2832));line(r,0.28,1)}}
+ // 가장자리가 밝은 홀로그램 면
+ const g=cx.createLinearGradient(p.x+nx*A,p.y+ny*A,p.x-nx*A,p.y-ny*A);
+ g.addColorStop(0,`rgba(${C},0.32)`);g.addColorStop(0.2,`rgba(${C},0.08)`);g.addColorStop(0.5,`rgba(${C},0.04)`);g.addColorStop(0.8,`rgba(${C},0.08)`);g.addColorStop(1,`rgba(${C},0.32)`);
+ cx.fillStyle=g;cx.beginPath();cx.moveTo(p.x+nx*A,p.y+ny*A);cx.lineTo(q.x+nx*B,q.y+ny*B);cx.lineTo(q.x-nx*B,q.y-ny*B);cx.lineTo(p.x-nx*A,p.y-ny*A);cx.fill();
+ // 윤곽선 두 줄
+ cx.strokeStyle=`rgba(${C},0.85)`;cx.lineWidth=1.5;cx.beginPath();
+ cx.moveTo(p.x+nx*A,p.y+ny*A);cx.lineTo(q.x+nx*B,q.y+ny*B);cx.moveTo(p.x-nx*A,p.y-ny*A);cx.lineTo(q.x-nx*B,q.y-ny*B);cx.stroke();
+ // 양 끝 테두리만
+ for(const t of [0,1]){const r=[];for(let j=0;j<=NS;j++)r.push(pt(t,j/NS*6.2832));line(r,0.5,1.2)}
+ // 은은한 세로 결 3줄
+ for(const ph of [1.2,1.57,1.94]){line([pt(0.08,ph),pt(0.92,ph)],0.18,1)}}
 function joint(v,R,t){const p=P(v),r=R*p.k;
  const g=cx.createRadialGradient(p.x,p.y,0,p.x,p.y,r*2.2);g.addColorStop(0,`rgba(${C},0.55)`);g.addColorStop(1,`rgba(${C},0)`);
  cx.fillStyle=g;cx.beginPath();cx.arc(p.x,p.y,r*2.2,0,7);cx.fill();
  cx.strokeStyle=`rgba(${C},0.9)`;cx.lineWidth=1.5;cx.beginPath();cx.arc(p.x,p.y,r,0,7);cx.stroke();
- cx.setLineDash([4,6]);cx.lineDashOffset=-t*20;cx.strokeStyle=`rgba(${C},0.5)`;cx.beginPath();cx.arc(p.x,p.y,r*1.7,0,7);cx.stroke();cx.setLineDash([])}
+ if(t!==null){cx.setLineDash([4,6]);cx.lineDashOffset=-t*20;cx.strokeStyle=`rgba(${C},0.45)`;cx.beginPath();cx.arc(p.x,p.y,r*1.8,0,7);cx.stroke();cx.setLineDash([])}}
 function render(ts){
  const t=(ts||0)/1000;
  curA.u+=(tgtA.u-curA.u)*0.25;curA.e+=(tgtA.e-curA.e)*0.25;
@@ -433,7 +440,7 @@ function render(ts){
  for(let i=-5;i<=5;i++){line([[i*30,-190,-150],[i*30,-190,150]],0.12);line([[-150,-190,i*30],[150,-190,i*30]],0.12)}
  cx.globalCompositeOperation='lighter';
  wire(S,E,20,15);wire(E,Hd,14,10);
- joint(S,9,t);joint(E,8,-t);joint(Hd,6,t);
+ joint(S,9,null);joint(E,8,t);joint(Hd,6,null);
  // 기준선(상완 연장)과 팔꿈치 각도 호
  const ext=[E[0]+50*Math.sin(u),E[1]-50*Math.cos(u),0];line([E,ext],0.35,1);
  const arc=[];for(let i=0;i<=24;i++){const a=u+(f-u)*i/24;arc.push([E[0]+38*Math.sin(a),E[1]-38*Math.cos(a),0])}line(arc,0.95,2.5);
