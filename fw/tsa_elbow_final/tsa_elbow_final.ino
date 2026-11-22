@@ -7,6 +7,8 @@
  *   - 폰 끊김 판정 0.4 s → 1.5 s  (와이파이가 잠깐 늦을 때 멈췄다 당기던 현상)
  *   - 수동 모드: 속도 자체에 걸던 브레이크 제거, 목표 속도와의 차이에만 감쇠
  *   - 전압 잘림 수정 (driver 12 V / motor 6 V), 전류 상한 2.0 A, 수동 게인·최고속도 상향
+ *   - 폰 화면에 팔 모양 실시간 그림 + 상완·전완·팔꿈치 각도
+ *   - IMU 를 Y축이 팔 길이 방향이 되게 붙였으면 ARM_ALONG_Y 를 true 로
  *   - 시리얼 모니터가 닫혀 있어도 멈추지 않음 (USB 출력 대기 제거)
  *   - 화면에 응답 시간(ms) 표시, 시리얼 i1.0 / s 로 폰 없이 시험
  *
@@ -85,7 +87,7 @@ volatile float testI = 0;             // 시리얼 i 명령 (모드 4)
 const uint32_t STALE_MS = 1500;       // 폰 신호가 이만큼 끊기면 멈춤
 bool  imuOK = false, imuZero = false, strZero = false;
 float angU = 0, angF = 0, zeroU = 0, zeroF = 0;     // 도
-float elbow = 0, phi = 0;                           // 도
+float elbow = 0, phi = 0, upA = 0;                           // 도
 float strZeroAngle = 0, tgt = 0, Fcmd = 0;
 volatile float Icmd = 0;              // 제어 → FOC 태스크 (A)
 volatile uint32_t focCount = 0;
@@ -101,7 +103,9 @@ bool mpuInit(uint8_t a) {
   return mpuW(a, 0x6B, 0x01) && mpuW(a, 0x1A, 0x06) &&   // 깨우기, DLPF 5 Hz
          mpuW(a, 0x1B, 0x00) && mpuW(a, 0x1C, 0x00) && mpuW(a, 0x19, 0x09);
 }
-// 보드의 X축이 팔 길이 방향, Z축이 팔이 굽는 평면 안(팔 앞쪽)을 보게 붙였다고 가정
+// 보드를 팔 앞면에 납작하게 (Z축 = 팔 바깥쪽).  팔 길이 방향 축:
+//   X 화살표가 팔 길이 방향이면 false,  Y 화살표가 팔 길이 방향이면 true
+const bool ARM_ALONG_Y = false;
 bool mpuAngle(uint8_t a, float &deg) {
   Wire.beginTransmission(a); Wire.write(0x3B);
   if (Wire.endTransmission(false) != 0) return false;
@@ -109,7 +113,9 @@ bool mpuAngle(uint8_t a, float &deg) {
   uint8_t b[6];
   for (int i = 0; i < 6; i++) b[i] = Wire.read();    // 한 줄에 read() 두 번 쓰면 순서가 보장되지 않는다
   int16_t ax = (int16_t)((b[0] << 8) | b[1]);
+  int16_t ay = (int16_t)((b[2] << 8) | b[3]);
   int16_t az = (int16_t)((b[4] << 8) | b[5]);
+  if (ARM_ALONG_Y) ax = ay;
   deg = atan2f((float)az, (float)ax) * 57.29578f;
   return true;
 }
@@ -167,10 +173,10 @@ void hState() {
   assist   = constrain(server.arg("a").toFloat(), 0, 100) * 0.01f;
   lastCmdMs = millis();
   if (!focOK) msg = "모터 정렬 실패 — 엔코더 선을 확인하고 전원을 다시 켜세요";
-  char b[260];
+  char b[320];
   snprintf(b, sizeof b,
-    "{\"m\":%d,\"el\":%.1f,\"ph\":%.1f,\"tn\":%.2f,\"f\":%.1f,\"i\":%.2f,\"io\":%d,\"zi\":%d,\"zs\":%d,\"msg\":\"%s\"}",
-    mode, elbow, phi, (motor.shaft_angle - strZeroAngle) / 6.2832f, Fcmd, (float)Icmd,
+    "{\"m\":%d,\"el\":%.1f,\"ph\":%.1f,\"up\":%.1f,\"tn\":%.2f,\"f\":%.1f,\"i\":%.2f,\"io\":%d,\"zi\":%d,\"zs\":%d,\"msg\":\"%s\"}",
+    mode, elbow, phi, upA, (motor.shaft_angle - strZeroAngle) / 6.2832f, Fcmd, (float)Icmd,
     imuOK, imuZero, strZero, msg);
   server.send(200, "application/json", b);
   if (focOK) msg = "";                         // 메시지는 한 번만 보낸다
@@ -293,6 +299,7 @@ void loop() {
         dst += 0.2f * wrap180(a - dst);              // 가벼운 평활
       } else imuOK = false;
       which = !which;
+      upA   = IMU_SIGN * wrap180(angU - zeroU);      // 상완 기울기 (영점 자세 기준)
       phi   = IMU_SIGN * wrap180(angF - zeroF);
       elbow = IMU_SIGN * wrap180((angF - zeroF) - (angU - zeroU));
     } else if (mode == 0 && millis() - tRetry > 3000) {   // 끊겼으면 정지 중에만 3초마다 다시 시도
@@ -352,6 +359,19 @@ input[type=range]{width:100%;height:44px;accent-color:#4cc5d6}
 <div class="card"><div class="lab">모드</div>
  <div class="modes"><button data-m="1">수동</button><button data-m="2">자동</button></div>
  <div id="msg"></div></div>
+<div class="card"><div class="lab">팔 자세 — 실시간 <span id="zw" style="color:#f0b072"></span></div>
+ <svg id="arm" viewBox="0 0 240 190" style="width:100%;height:auto;display:block">
+  <line x1="20" y1="30" x2="220" y2="30" stroke="#2b343d" stroke-dasharray="4 4"/>
+  <g id="armg">
+   <line id="ua" x1="120" y1="30" x2="120" y2="105" stroke="#93a1ae" stroke-width="14" stroke-linecap="round"/>
+   <line id="fa" x1="120" y1="105" x2="120" y2="170" stroke="#4cc5d6" stroke-width="12" stroke-linecap="round"/>
+   <path id="arc" d="" fill="none" stroke="#f0b072" stroke-width="2"/>
+   <circle cx="120" cy="30" r="9" fill="#e8edf2"/>
+   <circle id="ej" cx="120" cy="105" r="7" fill="#11151a" stroke="#e8edf2" stroke-width="2"/>
+  </g>
+  <text id="elt" x="0" y="0" fill="#f0b072" font-size="16" font-weight="600"></text>
+ </svg>
+ <div class="grid" style="grid-template-columns:1fr 1fr 1fr;margin-top:6px"><div><b id="upv">–</b><span>상완 기울기 °</span></div><div><b id="phv">–</b><span>전완 기울기 °</span></div><div><b id="el2">–</b><span>팔꿈치 °</span></div></div></div>
 <div class="card" id="manual"><div class="lab">수동 — 속도 −100 ~ +100  (100 = 초당 10바퀴)</div>
  <div class="big" id="val">0</div>
  <input id="sl" type="range" min="-100" max="100" value="0">
@@ -381,7 +401,21 @@ $('un').onclick=()=>{zero();act('un')};
 let lastAct=0;
 function paint(){document.querySelectorAll('.modes button').forEach(b=>b.classList.toggle('on',+b.dataset.m===mode));
  $('manual').classList.toggle('off',mode!==1);$('auto').classList.toggle('off',mode!==2)}
+function drawArm(s){
+ if(!s.io){$('zw').textContent='IMU 없음';return}
+ $('zw').textContent=s.zi?'':'(① 영점 전 — 팔 펴고 영점을 누르세요)';
+ const r=Math.PI/180,sx=120,sy=30,L1=75,L2=65;
+ const u=s.up*r,f=(s.up+s.el)*r;
+ const ex=sx+L1*Math.sin(u),ey=sy+L1*Math.cos(u),hx=ex+L2*Math.sin(f),hy=ey+L2*Math.cos(f);
+ const set=(id,a)=>{for(const k in a)$(id).setAttribute(k,a[k].toFixed?a[k].toFixed(1):a[k])};
+ set('ua',{x2:ex,y2:ey});set('fa',{x1:ex,y1:ey,x2:hx,y2:hy});set('ej',{cx:ex,cy:ey});
+ const R=22,a0=u,a1=f,large=Math.abs(s.el)>180?1:0,sw=s.el>0?0:1;
+ $('arc').setAttribute('d',Math.abs(s.el)<2?'':`M${ex+R*Math.sin(a0)} ${ey+R*Math.cos(a0)} A${R} ${R} 0 ${large} ${sw} ${ex+R*Math.sin(a1)} ${ey+R*Math.cos(a1)}`);
+ const t=$('elt');t.textContent=s.el.toFixed(0)+'°';t.setAttribute('x',(ex+14).toFixed(1));t.setAttribute('y',(ey-12).toFixed(1));
+ $('upv').textContent=s.up.toFixed(1);$('phv').textContent=s.ph.toFixed(1);$('el2').textContent=s.el.toFixed(1);
+}
 function show(s,ms){
+ drawArm(s);
  $('link').className='ok';$('link').textContent='연결됨 · '+ms+' ms';
  if(Date.now()-lastAct>800){mode=s.m;paint()}
  $('el').textContent=s.io?s.el.toFixed(1):'–';$('tn').textContent=s.tn.toFixed(1);$('fo').textContent=s.f.toFixed(1);$('cu').textContent=s.i.toFixed(2);
