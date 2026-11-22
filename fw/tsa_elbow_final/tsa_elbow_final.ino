@@ -7,6 +7,7 @@
  *   - 폰 끊김 판정 0.4 s → 1.5 s  (와이파이가 잠깐 늦을 때 멈췄다 당기던 현상)
  *   - 수동 모드: 속도 자체에 걸던 브레이크 제거, 목표 속도와의 차이에만 감쇠
  *   - 전압 잘림 수정 (driver 12 V / motor 6 V), 전류 상한 2.0 A, 수동 게인·최고속도 상향
+ *   - 따라감 학습: 수동으로 감으며 (각도, 꼬임)을 기록·저장 → 자동이 그 기록대로 따라감
  *   - 수동은 각도·0점 제한 없이 자유롭게 (꼬임 ±16 바퀴만)
  *   - 자동 모드 = 팔꿈치 각도만큼 줄을 감아 따라감 (수동과 같은 세기)
  *   - 버튼 단순화: 줄 0점은 켤 때 자동, IMU 영점은 "자동" 누를 때 자동, 각도는 절댓값(부호 버튼 없음)
@@ -35,6 +36,7 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <Wire.h>
+#include <Preferences.h>
 
 // ------------------------------------------------------------------ 핀
 #define PIN_IN1 0
@@ -87,7 +89,22 @@ volatile int mode = 0;
 volatile float sliderV = 0, assist = 0.5f;
 const float MANUAL_MAX_TPS = 10.0f;   // 슬라이더 ±100 일 때 초당 바퀴 수
 uint32_t lastCmdMs = 0;
-volatile float testI = 0;             // 시리얼 i 명령 (모드 4)
+volatile float testI = 0;
+// ---- 따라감 학습: 실제로 잰 (팔꿈치 각도, 꼬임) 표
+const int NT = 64;
+float tE[NT], tT[NT]; volatile int nT = 0; volatile bool teaching = false;
+Preferences prefs;
+void saveTable() { prefs.begin("tsa", false); prefs.putInt("n", nT);
+  prefs.putBytes("e", tE, sizeof(float) * nT); prefs.putBytes("t", tT, sizeof(float) * nT); prefs.end(); }
+void loadTable() { prefs.begin("tsa", true); int n = prefs.getInt("n", 0);
+  if (n >= 2 && n <= NT) { prefs.getBytes("e", tE, sizeof(float) * n); prefs.getBytes("t", tT, sizeof(float) * n); nT = n; }
+  prefs.end(); }
+float tableTwist(float e) {                // 각도 → 꼬임 (기록 사이는 직선으로 잇기)
+  if (e <= tE[0]) return tT[0];
+  for (int i = 1; i < nT; i++)
+    if (e <= tE[i]) return tT[i-1] + (tT[i] - tT[i-1]) * (e - tE[i-1]) / (tE[i] - tE[i-1]);
+  return tT[nT-1];
+}             // 시리얼 i 명령 (모드 4)
 const uint32_t STALE_MS = 1500;       // 폰 신호가 이만큼 끊기면 멈춤
 bool  imuOK = false, imuZero = false, strZero = false;
 float angU = 0, angF = 0, zeroU = 0, zeroF = 0;     // 도
@@ -160,6 +177,13 @@ void hDo() {
   if (x == "un" && strZero) mode = 3;
   if (x == "sg") IMU_SIGN = -IMU_SIGN;
   if (x == "m0") mode = 0;
+  if (x == "ts" && imuOK) {                       // 학습 시작: 지금 자세 = 0°, 첫 점 기록
+    zeroU = angU; zeroF = angF; imuZero = true; elbow = 0;
+    nT = 0; tE[0] = 0; tT[0] = motor.shaft_angle - strZeroAngle; nT = 1; teaching = true;
+    msg = "학습 중 — 수동으로 천천히 감아 팔을 올리세요"; }
+  if (x == "ts" && !imuOK) msg = "IMU 가 응답하지 않습니다";
+  if (x == "te") { teaching = false;
+    if (nT >= 2) { saveTable(); msg = "학습 저장 완료"; } else { nT = 0; msg = "기록이 부족합니다 (팔을 더 올려 주세요)"; } }
   if ((x == "m1" || x == "m2") && focOK) {
     int m = x[1] - '0';
     if (m == 2 && !imuOK) {
@@ -179,11 +203,11 @@ void hState() {
   assist   = constrain(server.arg("a").toFloat(), 0, 100) * 0.01f;
   lastCmdMs = millis();
   if (!focOK) msg = "모터 정렬 실패 — 엔코더 선을 확인하고 전원을 다시 켜세요";
-  char b[320];
+  char b[420];
   snprintf(b, sizeof b,
-    "{\"m\":%d,\"el\":%.1f,\"ph\":%.1f,\"up\":%.1f,\"tn\":%.2f,\"f\":%.1f,\"i\":%.2f,\"io\":%d,\"zi\":%d,\"zs\":%d,\"msg\":\"%s\"}",
+    "{\"m\":%d,\"el\":%.1f,\"ph\":%.1f,\"up\":%.1f,\"tn\":%.2f,\"f\":%.1f,\"i\":%.2f,\"io\":%d,\"zi\":%d,\"zs\":%d,\"nt\":%d,\"tc\":%d,\"msg\":\"%s\"}",
     mode, elbow, phi, upA, (motor.shaft_angle - strZeroAngle) / 6.2832f, Fcmd, (float)Icmd,
-    imuOK, imuZero, strZero, msg);
+    imuOK, imuZero, strZero, (int)nT, (int)teaching, msg);
   server.send(200, "application/json", b);
   if (focOK) msg = "";                         // 메시지는 한 번만 보낸다
 }
@@ -204,6 +228,8 @@ void control(float dt) {
     // 수동은 사람이 직접 조작하므로 IMU 각도·0점 제한을 걸지 않는다 (꼬임 ±16 바퀴만 제한)
     tgt += v * dt;
     tgt = constrain(tgt, -thMax, thMax);
+    if (teaching && imuOK && nT < NT && elbow > tE[nT-1] + 2.0f) {   // 2° 올라갈 때마다 기록
+      tE[nT] = elbow; tT[nT] = max(th, tT[nT-1]); nT++; }
     if ((tgt <= -thMax && v < 0) || (tgt >= thMax && v > 0)) v = 0;
     tgt = constrain(tgt, th - LAG_MAX, th + LAG_MAX);   // 막혔을 때 목표가 혼자 달아나지 않게
     Fcmd = 0;
@@ -223,8 +249,15 @@ void control(float dt) {
   // ---- 자동: 팔꿈치를 굽힌 만큼 줄을 감아 따라간다 (수동과 같은 세기·반응)
   if (!imuOK) { mode = 0; Icmd = 0; return; }
   float e = constrain(elbow, 0, ELBOW_MAX);
-  float x = (L0 - strDist(e)) * assist - SLACK_MM;   // 필요한 줄 수축량 (mm), 살짝 여유
-  float want = constrain(twistFor(x), 0, thMax);     // → 필요한 꼬임 (rad)
+  float want;
+  if (nT >= 2) {                                     // 학습한 표가 있으면 그대로 따른다
+    float t0 = tT[0];
+    want = t0 + (tableTwist(e) - t0) * assist - 1.0f;   // 1 rad 정도 살짝 느슨하게
+    want = constrain(want, -thMax, thMax);
+  } else {                                           // 없으면 설계 치수로 계산
+    float x = (L0 - strDist(e)) * assist - SLACK_MM;
+    want = constrain(twistFor(x), 0, thMax);
+  }
   float vmax = MANUAL_MAX_TPS * 6.2832f, prev = tgt;
   tgt += constrain(want - tgt, -vmax * dt, vmax * dt);   // 최고 속도 안에서 목표로
   float vt = (tgt - prev) / dt;
@@ -267,6 +300,7 @@ void setup() {
   if (!focOK) { motor.disable(); Serial.println("모터 정렬 실패 — 엔코더 배선 확인"); }
   Serial.printf("정렬: zero_electric_angle %.4f, 방향 %s\n", motor.zero_electric_angle,
                 motor.sensor_direction == Direction::CW ? "CW" : "CCW");
+  loadTable();
   strZeroAngle = motor.shaft_angle; strZero = true; // 켤 때 줄이 안 꼬인 상태라고 본다
 
   WiFi.mode(WIFI_AP);
@@ -371,7 +405,9 @@ input[type=range]{width:100%;height:44px;accent-color:#4cc5d6}
 <div class="card"><div class="lab">상태</div>
  <div class="grid"><div><b id="el">–</b><span>팔꿈치 °</span></div><div><b id="tn">–</b><span>꼬임 바퀴</span></div><div><b id="fo">–</b><span>목표 꼬임 바퀴</span></div><div><b id="cu">–</b><span>모터 전류 A</span></div></div></div>
 <div class="card"><div class="lab">도구</div>
- <div class="acts"><button id="zi">IMU 다시 영점<br>(팔 펴고 정지)</button><button id="un">줄 처음 상태로<br>풀기</button></div>
+ <div class="acts"><button id="ts">따라감 학습 시작<br>(팔 펴고 힘 빼기)</button><button id="te">학습 끝<br>(저장)</button>
+ <button id="zi">IMU 다시 영점<br>(팔 펴고 정지)</button><button id="un">줄 처음 상태로<br>풀기</button></div>
+ <div id="tinfo" style="font-size:12px;color:#7fd6ad;margin-top:8px"></div>
  <div style="font-size:11px;color:#93a1ae;margin-top:8px">자동을 누르면 그 순간 자세를 0° 로 잡습니다 — 팔을 펴고 누르세요. 전원은 줄이 꼬이지 않은 상태에서 켜세요.</div></div>
 <script>
 const $=id=>document.getElementById(id);let mode=0,busy=false,miss=0,msgT=0;
@@ -385,7 +421,7 @@ $('as').addEventListener('input',()=>$('asv').textContent=$('as').value+' %');
 document.querySelectorAll('.modes button').forEach(b=>b.onclick=()=>{mode=+b.dataset.m;zero();paint();act('m'+mode)});
 $('stop').onclick=()=>{mode=0;zero();paint();act('m0')};
 const act=x=>{lastAct=Date.now();return fetch('/do?x='+x).catch(()=>{})};
-$('zi').onclick=()=>act('zi');
+$('zi').onclick=()=>act('zi');$('ts').onclick=()=>{act('ts');mode=1;paint();act('m1')};$('te').onclick=()=>act('te');
 $('un').onclick=()=>{zero();act('un')};
 let lastAct=0;
 function paint(){document.querySelectorAll('.modes button').forEach(b=>b.classList.toggle('on',+b.dataset.m===mode));
@@ -461,7 +497,8 @@ function show(s,ms){
  $('link').className='ok';$('link').textContent='연결됨 · '+ms+' ms';
  if(Date.now()-lastAct>800){mode=s.m;paint()}
  $('el').textContent=s.io?s.el.toFixed(1):'–';$('tn').textContent=s.tn.toFixed(1);$('fo').textContent=s.f.toFixed(1);$('cu').textContent=s.i.toFixed(2);
- $('zi').classList.toggle('done',!!s.zi);
+ $('zi').classList.toggle('done',!!s.zi);$('ts').classList.toggle('done',!!s.tc);
+ $('tinfo').textContent=s.tc?`학습 중 — 기록 ${s.nt}개`:(s.nt>=2?`학습된 기록 ${s.nt}개 — 자동은 이 기록대로 따라갑니다`:'학습 기록 없음 — 자동은 설계 계산값을 씁니다');
  if(s.msg){$('msg').textContent=s.msg;msgT=Date.now()}else if(Date.now()-msgT>3000)$('msg').textContent='';
 }
 setInterval(()=>{if(busy)return;busy=true;const t0=Date.now();
