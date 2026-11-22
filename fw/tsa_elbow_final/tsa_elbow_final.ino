@@ -20,7 +20,7 @@
  *  v3 변경 (v2 대비):
  *   - 전압 대신 "전류(A)"로 지령.  phase_resistance·KV 로 전압을 계산하고
  *     전류 상한 1.5 A 를 넘지 않음 → DRV8313(2.5 A) 보호회로가 껐다 켜지는 문제 방지
- *   - 정렬 생략: 11/16 측정값 (1.4120 / CW) 을 사용.  모터 3선을 다시 꽂았으면 값이 틀릴 수 있음
+ *   - 켤 때마다 정렬 (고정값을 쓰면 배선을 만질 때마다 힘이 약해지고 열이 남)
  *   - 화면에 모터 전류 표시
  *
  *  폰에서:  와이파이 "TSA-ELBOW" (비밀번호 tsa12345) 접속 → 주소창에 192.168.4.1
@@ -288,8 +288,7 @@ void setup() {
   motor.voltage_sensor_align = 1.5f;
   motor.torque_controller = TorqueControlType::voltage;
   motor.controller = MotionControlType::torque;
-  motor.zero_electric_angle = 1.4120f;               // 11/16 정렬 결과
-  motor.sensor_direction = Direction::CW;            // → 이 두 값이 있으면 켤 때 정렬 회전을 건너뛴다
+  // 켤 때마다 정렬 (1~2초 움찔).  배선을 만져도 매번 알아서 맞춘다.  켤 때 줄은 느슨하게.
   motor.init();
   focOK = motor.initFOC();
   if (!focOK) { motor.disable(); Serial.println("모터 정렬 실패 — 엔코더 배선 확인"); }
