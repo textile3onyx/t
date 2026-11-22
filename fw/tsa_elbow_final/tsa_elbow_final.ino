@@ -435,7 +435,8 @@ cv.addEventListener('pointermove',e=>{if(drag!==null){yaw+=(e.clientX-drag)*0.01
 cv.addEventListener('pointerup',()=>drag=null);
 function P(v){const cy=Math.cos(yaw),sy=Math.sin(yaw),x=v[0]*cy+v[2]*sy,z=-v[0]*sy+v[2]*cy;
  const pt=0.28,y=v[1]*Math.cos(pt)-z*Math.sin(pt),z2=v[1]*Math.sin(pt)+z*Math.cos(pt);
- const k=420/(420+z2);return {x:W/2+x*k,y:H*0.18-y*k,k:k,z:z2}}
+ const k=420/(420+z2);return {x:W/2+x*k+offX,y:H/2-y*k+offY,k:k,z:z2}}
+let offX=0,offY=0;
 const add=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];
 // 홀로그램 스타일: 반투명 하늘색 와이어프레임
 const C='120,220,255';
@@ -470,8 +471,13 @@ function render(ts){
  cx.fillStyle=bg;cx.fillRect(0,0,W,H);
  const r=Math.PI/180,u=curA.u*r,f=(curA.u+curA.e)*r,L1=95,L2=85;
  const S=[0,0,0],E=[L1*Math.sin(u),-L1*Math.cos(u),0],Hd=[E[0]+L2*Math.sin(f),E[1]-L2*Math.cos(f),0];
+ // 팔 전체가 화면 가운데 오도록 시점을 따라간다
+ {const ps=[P(S),P(E),P(Hd)],mx=(Math.min(...ps.map(q=>q.x))+Math.max(...ps.map(q=>q.x)))/2,my=(Math.min(...ps.map(q=>q.y))+Math.max(...ps.map(q=>q.y)))/2;
+  offX+=(W/2-mx)*0.2;offY+=(H/2-my)*0.2}
  // 바닥 격자
- for(let i=-5;i<=5;i++){line([[i*30,-190,-150],[i*30,-190,150]],0.12);line([[-150,-190,i*30],[150,-190,i*30]],0.12)}
+ {const ox=offX,oy=offY;offX=0;offY=-H*0.32;   // 바닥 격자는 화면 아래에 고정
+  for(let i=-5;i<=5;i++){line([[i*30,-190,-150],[i*30,-190,150]],0.12);line([[-150,-190,i*30],[150,-190,i*30]],0.12)}
+  offX=ox;offY=oy}
  cx.globalCompositeOperation='lighter';
  wire(S,E,20,15);wire(E,Hd,14,10);
  joint(S,9,null);joint(E,8,t);joint(Hd,6,null);
@@ -489,7 +495,7 @@ requestAnimationFrame(render);
 function drawArm(s){
  if(!s.io){$('zw').textContent='IMU 없음';return}
  $('zw').textContent=s.zi?'':'(① 영점 전 — 팔 펴고 영점을 누르세요)';
- tgtA.u=s.up;tgtA.e=s.el;
+ tgtA.u=s.zi?s.up:0;tgtA.e=s.el;   // 영점 전에는 상완을 세워서 보여 준다
  $('upv').textContent=s.up.toFixed(1);$('phv').textContent=s.ph.toFixed(1);$('el2').textContent=s.el.toFixed(1);
 }
 function show(s,ms){
