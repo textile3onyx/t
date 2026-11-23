@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<title>TSA 팔꿈치 보조기기 — ICES 2026 포스터</title>
+<style>
+@page{size:841mm 1189mm;margin:0}
+:root{--navy:#2c3a52;--ink:#1d1d1f;--line:#3c4a63;--tab:#d9dde4;--soft:#e4ebf6;--yel:#f5c518}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:841mm;height:1189mm;background:#fff}
+body{font-family:'Noto Sans CJK KR',sans-serif;color:var(--ink);font-size:8.6mm;line-height:1.55;word-break:keep-all}
+.poster{width:841mm;height:1189mm;display:flex;flex-direction:column}
+
+header{background:linear-gradient(180deg,#0b1220 0%,#1c2c46 45%,#5c6f8e 80%,#ffffff 100%);color:#fff;text-align:center;padding:16mm 30mm 20mm;position:relative}
+h1{font-size:19mm;font-weight:700;line-height:1.25;letter-spacing:-.3mm;text-shadow:0 .6mm 2mm rgba(0,0,0,.35)}
+.auth{margin-top:9mm;font-size:10mm;font-weight:700;color:var(--yel)}
+.auth sup{font-size:.55em}
+.aff{font-size:9mm;font-weight:700;color:var(--yel)}
+
+main{flex:1;padding:4mm 14mm 0;display:flex;flex-direction:column;gap:8mm}
+.sec{position:relative;border:.6mm solid var(--line);padding:13mm 9mm 8mm}
+.tab{position:absolute;top:-7mm;left:9mm;background:var(--tab);border-radius:4mm;padding:1mm 12mm;font-size:11mm;font-weight:700;color:#222;box-shadow:0 .6mm 1.2mm rgba(0,0,0,.18)}
+ul{list-style:none} li{position:relative;padding-left:6mm;margin:1.2mm 0}
+li::before{content:"•";position:absolute;left:0}
+b{font-weight:700}
+.intro li{font-size:8.6mm}
+
+.grid{display:grid;gap:7mm}
+.g3{grid-template-columns:1fr 1fr 1fr}
+.sec table{font-size:7.8mm}
+.g4{grid-template-columns:1fr 1fr 1fr 1fr}
+.sub{display:flex;flex-direction:column}
+.sub+.sub{border-left:.5mm dashed #8b95a5;padding-left:7mm}
+.bar{background:var(--navy);color:#fff;font-weight:700;font-size:8.6mm;padding:1.6mm 4mm;border-radius:1.6mm;margin-bottom:4mm;display:inline-block;align-self:flex-start}
+.sub p,.sub li{font-size:7.8mm;line-height:1.5}
+figure{margin:3mm 0}
+figure img{width:100%;display:block}
+figcaption{font-size:6.6mm;color:#444;text-align:center;margin-top:1mm}
+
+.step{font-size:8mm;font-weight:700;margin:3mm 0 1.5mm}
+.box{background:var(--soft);border-radius:4mm;padding:3mm 5mm;font-size:7.4mm;line-height:1.45}
+.box li::before{content:"-"}
+.arrow{width:0;height:0;margin:2mm auto;border-left:7mm solid transparent;border-right:7mm solid transparent;border-top:8mm solid var(--yel);filter:drop-shadow(0 .4mm .4mm rgba(0,0,0,.25))}
+
+table{width:100%;border-collapse:collapse;font-size:7.2mm;margin:2mm 0}
+th{background:var(--navy);color:#fff;font-weight:700;padding:1.2mm 2mm}
+td{border-bottom:.3mm solid #b8c0cc;padding:1.2mm 2mm;text-align:center}
+td:first-child{font-weight:700}
+.hl{color:#c0392b;font-weight:700}
+.todo{color:#c0392b;font-weight:700}
+.eq{text-align:center;font-weight:700;font-size:9.6mm;background:var(--soft);border-radius:3mm;padding:2mm;margin:2mm 0}
+
+.bottom{display:grid;grid-template-columns:1.1fr 1fr;gap:9mm}
+.bottom li{font-size:8.2mm}
+.arrowtext{font-weight:700;margin-top:2mm;font-size:8.4mm}
+footer{font-size:6.6mm;padding:5mm 14mm 6mm;border-top:.3mm solid #999;margin-top:7mm}
+</style></head>
+<body><div class="poster">
+
+<header>
+  <h1>꼬임줄 구동기(TSA)를 이용한 착용형 팔꿈치 보조기기의<br>인간공학적 설계 및 착용성 평가</h1>
+  <div class="auth">Semun Gu, In Hwan Sul, Heeran Lee*</div>
+  <div class="aff">Dept. of Materials Design Engineering, Kumoh National Institute of Technology, Gumi, South Korea</div>
+</header>
+
+<main>
+
+<section class="sec intro" style="margin-top:6mm">
+  <div class="tab">Introduction</div>
+  <ul>
+    <li>퇴원 후 <b>가정 재활</b>에 쓰이는 팔꿈치 보조기기는 충분한 보조력과 함께 <b>착용 불편이 적고 혼자 착용할 수 있어야</b> 함.</li>
+    <li>그러나 기존 강체 외골격은 기계 관절축을 팔꿈치 축에 정렬해야 하고, 무게와 구조적 복잡성으로 <b>착용 부담이 큼</b>. TSA 기반 소프트 슈트 연구는 있으나 인체치수·패턴·착용성을 고려한 설계 근거는 부족함. <span class="todo">[선행연구 인용]</span></li>
+    <li>따라서 본 연구는 <b>관절축 정렬이 필요 없는 꼬임줄 구동기(Twisted String Actuator, TSA)</b>를 이용하여, 인체치수와 착용 편의성을 고려한 팔꿈치 굴곡 보조기기를 설계하고 착용성을 평가하고자 함.</li>
+  </ul>
+</section>
+
+<section class="sec">
+  <div class="tab">Method</div>
+  <div class="grid g3">
+    <div class="sub">
+      <span class="bar">1. 인체치수 기반 밴드 위치 결정</span>
+      <ul>
+        <li>사이즈코리아(Size Korea) <b>20~24세 남성 평균</b> 3차원 인체 형상에서 팔꿈치 기준 팔 단면 둘레를 추출함.</li>
+                <li><b>JavaScript 시뮬레이터</b>를 개발하여 굴곡각별 장력·수축량·토크·회전수를 계산하고, 밴드 위치와 줄 간격(허브 직경)을 결정함.</li>
+      </ul>
+      <figure><img src="img/arm_girth.png"><figcaption>팔꿈치로부터 거리에 따른 팔 단면 둘레</figcaption></figure>
+    </div>
+
+    <div class="sub">
+      <span class="bar">2. 밴드 패턴 및 하드웨어 구성</span>
+      <ul>
+        <li>3차원 인체 형상을 바탕으로 <b>YUKA CAD의 맞춤(MTM) 패턴</b> 기능을 활용해 팔 곡면에 맞는 밴드 패턴을 제작함. <span class="todo">[절차 확인]</span></li>
+        <li>네오프렌 밴드에 <b>되접기 여밈</b>을 적용하여 한 손으로 당긴 채 고정할 수 있게 함.</li>
+      </ul>
+      <figure><img src="img/band_foldback.png"><figcaption>상완(50×380 mm)·전완(30×280 mm) 밴드 전개도</figcaption></figure>
+      <ul>
+        <li>모터 마운트·줄 허브·전완 앵커·방향전환 부품 5종을 3D 프린팅하여 <b>바느질 구멍</b>으로 밴드에 고정함.</li>
+        <li>상완 밴드에 모터, 3D 프린팅 줄 허브, 마이크로컨트롤러, 모터 드라이버를 통합하고, 줄로 상완·전완 밴드를 연결함. 어깨끈으로 흘러내림을 방지함.</li>
+        <li>상완·전완 밴드에 <b>IMU 센서</b>를 각각 부착하여 팔의 움직임을 감지함.</li>
+        <li>기기 총 질량은 <b>173.5 g</b>임 (배터리 제외).</li>
+        <li>AD0 핀으로 I2C 주소를 달리하여(0x68/0x69) 두 센서를 하나의 버스로 통신함.</li>
+      </ul>
+      <figure><img src="img/plate_top.png" style="width:36%;margin:0 auto"><figcaption>3D 프린팅 부품 배치</figcaption></figure>
+    </div>
+
+    <div class="sub">
+      <span class="bar">3. 작동 방식</span>
+      <ul><li>TSA는 두 가닥의 줄을 꼬아 길이를 줄여 팔꿈치 굴곡을 보조함.</li></ul>
+      <div class="eq">L² = p² + (r·θ)²</div>
+      <p style="font-size:6.8mm;text-align:center;color:#444">L: 직선거리, p: 줄 길이, r: 축–줄 반지름(2 mm), θ: 꼬임각</p>
+
+      <div class="step">1. 팔 움직임 감지</div>
+      <div class="box"><ul><li>상완·전완의 IMU가 팔의 움직임을 감지</li><li>두 센서의 기울기 차이로 팔꿈치 굴곡각을 실시간으로 연산</li><li>착용 직후 팔을 편 자세로 영점 설정</li></ul></div>
+      <div class="arrow"></div>
+      <div class="step">2. 필요한 꼬임 산출</div>
+      <div class="box"><ul><li>착용 상태에서 굴곡각별 줄 꼬임량을 미리 기록(학습)</li><li>측정한 굴곡각에 해당하는 꼬임량을 기록에서 산출</li><li>착용자의 의도는 추정하지 않음</li></ul></div>
+      <div class="arrow"></div>
+      <div class="step">3. 줄 꼬임 구동</div>
+      <div class="box"><ul><li>모터가 줄을 꼬아 굴곡각을 따라 줄 길이를 조절함</li><li>모터 전류 2 A 제한, 110° 이상 감기 금지, 통신 끊김 시 정지</li><li>시연용 수동 모드: 스마트폰 Wi-Fi 화면으로 속도 조작</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" style="flex:1">
+  <div class="tab">Results</div>
+  <div class="grid g3">
+    <div class="sub">
+      <span class="bar">1. 밴드 위치</span>
+      <ul>
+        <li>전완 밴드를 팔꿈치에서 멀리 둘수록 <b>장력은 감소</b>하나 <b>수축량은 증가</b>함.</li>
+        <li>상완 밴드를 멀리 둘수록 줄이 길어져 <b>필요 수축률이 감소</b>함.</li>
+        <li>따라서 상완 밴드는 겨드랑이까지의 거리(<b>23.6 cm</b>) 안에서 최대한 멀리, 전완 밴드는 팔꿈치에서 <b>6~9 cm</b>에 배치함.</li>
+      </ul>
+      <figure><img src="img/fig_tradeoff.png" style="width:62%;margin:0 auto"><figcaption>밴드 위치에 따른 장력·수축량 변화</figcaption></figure>
+    </div>
+
+    <div class="sub">
+      <span class="bar">2. 60° 굴곡 시 요구 조건</span>
+      <ul><li>결정한 밴드 위치에서 팔꿈치 60° 굴곡에 필요한 값을 산출함.</li></ul>
+      <table>
+        <tr><th>항목</th><th>값</th></tr>
+        <tr><td>필요 수축량</td><td class="hl">8.3 cm</td></tr>
+        <tr><td>필요 장력</td><td class="hl">14 N</td></tr>
+        <tr><td>줄 간격 (허브 직경)</td><td class="hl">4 mm 이상</td></tr>
+      </table>
+      <ul><li>모터의 토크와 회전수 조건을 고려하여 허브에서 두 줄 사이 간격(허브 직경)을 <b>4 mm 이상</b>으로 선정함.</li></ul>
+    </div>
+
+    <div class="sub">
+      <span class="bar">3. 착용성 평가</span>
+      <ul>
+        <li>20대 남성 10명을 대상으로 <b>5점 리커트 척도</b>로 착용 만족도를 주관적으로 평가함 (전원을 연결하지 않은 비구동 상태).</li>
+      </ul>
+      <table>
+        <tr><th>영역</th><th>문항</th><th>평균</th></tr>
+        <tr><td>착용 과정</td><td>착탈 시간, 길이 적합</td><td class="todo">-</td></tr>
+        <tr><td>고정 상태</td><td>상완·전완 밴드, 어깨끈</td><td class="todo">-</td></tr>
+        <tr><td>압박과 자극</td><td>조임 통증, 눌림·쓸림, 저림</td><td class="todo">-</td></tr>
+        <tr><td>무게와 동작</td><td>무게 부담, 동작 방해</td><td class="todo">-</td></tr>
+        <tr><td>수용도</td><td>가정 착용 거부감, 전반 만족</td><td class="todo">-</td></tr>
+      </table>
+      <ul><li>모든 평가 항목의 평균이 <b>3.0 이상</b>으로, 착용 만족도가 전반적으로 긍정적으로 나타남.</li></ul>
+    </div>
+  </div>
+</section>
+
+<div class="bottom">
+  <section class="sec">
+    <div class="tab">Conclusion</div>
+    <ul>
+      <li>사이즈코리아 인체치수와 JavaScript 시뮬레이터를 활용하여 TSA 기반 착용형 팔꿈치 굴곡 보조기기를 설계함.</li>
+      <li>기계 관절축 정렬 없이 줄 수축만으로 팔꿈치 굴곡을 보조함.</li>
+      <li>20대 남성 10명의 착용 평가에서 모든 항목이 평균 3.0 이상으로 나타남.</li>
+    </ul>
+    <div class="arrowtext">→ 인체치수·구조 설계·주관적 착용 평가를 통합한 착용형 팔꿈치 보조기기 설계의 기초를 제시함.</div>
+  </section>
+  <section class="sec">
+    <div class="tab">Future Work</div>
+    <ul>
+      <li>다양한 체형과 연령을 대상으로 추가 평가가 필요함.</li>
+    </ul>
+  </section>
+</div>
+
+</main>
+<footer>*This work was supported by the National Research Foundation of Korea (NRF) grant funded by the Korea government (MSIT) (No. NRF-2022R1A2C1010072).</footer>
+</div></body></html>

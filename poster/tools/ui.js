@@ -1,0 +1,13 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:390,height:1100},deviceScaleFactor:3});
+await p.route('**/*',r=>{const u=r.request().url();
+ if(u.includes('/s?'))return r.fulfill({contentType:'application/json',body:JSON.stringify({m:1,el:62,ph:64,up:2,tn:8.6,f:0,i:0.85,io:1,zi:1,zs:1,nt:0,tc:0,msg:''})});
+ if(u.includes('/do'))return r.fulfill({body:'ok'});
+ return r.fulfill({contentType:'text/html',body:require('fs').readFileSync('/tmp/claude-0/page.html','utf8')})});
+await p.goto('http://x.test/');await p.waitForTimeout(400);
+await p.click('.modes button[data-m="1"]');await p.waitForTimeout(1500);
+await p.evaluate(()=>{const s=document.getElementById('sl');s.value=55;s.dispatchEvent(new Event('input'))});
+await p.waitForTimeout(300);
+const h=await p.evaluate(()=>{const r=document.getElementById('manual').getBoundingClientRect();return r.bottom+12});
+await p.screenshot({path:'/home/user/t/poster/img/phone_ui.png',clip:{x:0,y:0,width:390,height:h}});
+await b.close()})();
