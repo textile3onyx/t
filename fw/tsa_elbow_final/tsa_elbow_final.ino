@@ -21,7 +21,7 @@
  *   - 전압 대신 "전류(A)"로 지령.  phase_resistance·KV 로 전압을 계산하고
  *     전류 상한 1.5 A 를 넘지 않음 → DRV8313(2.5 A) 보호회로가 껐다 켜지는 문제 방지
  *   - 저항값에 드라이버 저항 포함 (1.25 Ω) → 명령한 전류가 실제로 흐름 (힘 약 1.6 배)
- *   - 켤 때마다 정렬 (고정값을 쓰면 배선을 만질 때마다 힘이 약해지고 열이 남)
+ *   - 정렬 생략: 파일 위쪽 ZERO_ANGLE / SENSOR_DIR 고정값 사용
  *   - 화면에 모터 전류 표시
  *
  *  폰에서:  와이파이 "TSA-ELBOW" (비밀번호 tsa12345) 접속 → 주소창에 192.168.4.1
@@ -61,6 +61,9 @@ const float M_MAX   = 2.88f;    // 전완+손 최대 중력 모멘트 (Nm) — �
 const float ELBOW_MAX = 110.0f; // 이 각도를 넘으면 감기 금지
 
 // ------------------------------------------------------------------ 모터 상수 (GL30 KV290, 실측 KV 약 255)
+// ---- 정렬값 (motor_check.ino 로 잰 값) ----
+const float ZERO_ANGLE = 1.4120f;               // 11/16 측정
+const Direction SENSOR_DIR = Direction::CW;
 const float R_PHASE = 1.25f;      // 모터 상저항 0.765 + 드라이버(DRV8313) 0.48 Ω — 이걸 빼면 실제 전류가 명령의 60 % 만 흐름
 const float KV      = 255.0f;     // rpm/V
 const float KT      = 0.0376f;    // 토크상수 Nm/A
@@ -289,7 +292,9 @@ void setup() {
   motor.voltage_sensor_align = 1.5f;
   motor.torque_controller = TorqueControlType::voltage;
   motor.controller = MotionControlType::torque;
-  // 켤 때마다 정렬 (1~2초 움찔).  배선을 만져도 매번 알아서 맞춘다.  켤 때 줄은 느슨하게.
+  // 정렬 생략: 아래 고정값 사용.  모터가 약하거나 뜨거우면 motor_check 로 다시 재서 바꾼다.
+  motor.zero_electric_angle = ZERO_ANGLE;
+  motor.sensor_direction = SENSOR_DIR;
   motor.init();
   focOK = motor.initFOC();
   if (!focOK) { motor.disable(); Serial.println("모터 정렬 실패 — 엔코더 배선 확인"); }
