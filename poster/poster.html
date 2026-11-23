@@ -9,7 +9,7 @@ html,body{width:841mm;height:1189mm;background:#fff}
 body{font-family:'Noto Sans CJK KR',sans-serif;color:var(--ink);font-size:8.6mm;line-height:1.55;word-break:keep-all}
 .poster{width:841mm;height:1189mm;display:flex;flex-direction:column}
 
-header{background:linear-gradient(180deg,#0b1220 0%,#1c2c46 45%,#5c6f8e 80%,#ffffff 100%);color:#fff;text-align:center;padding:16mm 30mm 20mm;position:relative}
+header{background:linear-gradient(180deg,#0b1220 0%,#1c2c46 45%,#5c6f8e 80%,#ffffff 100%);color:#fff;text-align:center;padding:12mm 30mm 14mm;position:relative}
 h1{font-size:19mm;font-weight:700;line-height:1.25;letter-spacing:-.3mm;text-shadow:0 .6mm 2mm rgba(0,0,0,.35)}
 .auth{margin-top:9mm;font-size:10mm;font-weight:700;color:var(--yel)}
 .auth sup{font-size:.55em}
@@ -52,8 +52,11 @@ td:first-child{font-weight:700}
 .bottom li{font-size:8.2mm}
 .arrowtext{font-weight:700;margin-top:2mm;font-size:8.4mm}
 footer{font-size:6.2mm;padding:2mm 14mm 5mm;margin-top:2mm}
-.refs{font-size:6.2mm;line-height:1.45;padding:3mm 14mm 0;white-space:pre-line;color:#333}
+.refs{font-size:6.2mm;line-height:1.45;padding:3mm 14mm 0;color:#333}
 .sub table{margin-top:3mm}
+.ph{border:.6mm dashed #8b95a5;border-radius:3mm;background:#f4f6f9;color:#4b5563;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:8mm;margin:3mm 0}
+.ph small{font-weight:400;font-size:6.6mm;margin-top:1.5mm}
+.refs{padding-bottom:6mm}
 </style></head>
 <body><div class="poster">
 
@@ -65,7 +68,7 @@ footer{font-size:6.2mm;padding:2mm 14mm 5mm;margin-top:2mm}
 
 <main>
 
-<section class="sec intro" style="margin-top:6mm">
+<section class="sec intro" style="margin-top:5mm">
   <div class="tab">Introduction</div>
   <ul>
     <li>퇴원 후 <b>가정 재활</b>에 쓰이는 팔꿈치 보조기기는 충분한 보조력과 함께 <b>착탈 시간, 고정 상태, 압박, 무게, 크기</b> 등 착용 부담이 적어야 함.</li>
@@ -86,7 +89,6 @@ footer{font-size:6.2mm;padding:2mm 14mm 5mm;margin-top:2mm}
         <li><b>JavaScript 시뮬레이터</b>를 개발하여 굴곡각별 줄의 수축 길이, 장력, 모터 토크, 회전수를 계산함.</li>
         <li>상완을 아래로 내린 자세에서 팔 무게의 50 %를 보조하는 조건으로 계산하였으며, 전완·손의 질량 비율(체중의 2.52 %)과 무게중심 위치는 Plagenhoef 등의 값을 사용함 [2].</li>
       </ul>
-      <figure><img src="img/arm_girth.png"><figcaption>팔꿈치로부터 거리에 따른 팔 단면 둘레</figcaption></figure>
       <table>
         <tr><th>설계 항목</th><th>기준</th><th>근거</th></tr>
         <tr><td>굴곡 각도</td><td>60°</td><td>수축률·모터 토크가 정격 범위 안</td></tr>
@@ -94,6 +96,8 @@ footer{font-size:6.2mm;padding:2mm 14mm 5mm;margin-top:2mm}
         <tr><td>허브 지름</td><td>4 mm 이상</td><td>토크·회전수 정격 50 % 이내</td></tr>
         <tr><td>착용 부담</td><td>무게 173.5 g</td><td>유연한 밴드, 벨크로, 어깨끈</td></tr>
       </table>
+      <figure><img src="img/plate_top.png" style="width:48%;margin:0 auto"><figcaption>3D 프린팅 부품</figcaption></figure>
+
     </div>
 
     <div class="sub">
@@ -106,21 +110,25 @@ footer{font-size:6.2mm;padding:2mm 14mm 5mm;margin-top:2mm}
         <li>상완·전완 밴드에 <b>IMU 센서</b>를 각각 부착하여 팔의 움직임을 감지함.</li>
         <li>기기 총 질량은 <b>173.5 g</b>임 (배터리 제외).</li>
       </ul>
-      <figure><img src="img/plate_top.png" style="width:42%;margin:0 auto"><figcaption>3D 프린팅 부품</figcaption></figure>
+      <div class="ph" style="height:150mm">[사진] 밴드 패턴<br><small>YUKA CAD에서 뜬 상완·전완 밴드 패턴, 또는 재단한 밴드</small></div>
     </div>
 
     <div class="sub">
       <span class="bar">3. 작동 원리 및 제어</span>
       <ul><li>두 가닥의 PE 합사를 모터로 꼬면, 나선으로 감기는 만큼 양 끝 사이 길이가 줄어들어 팔꿈치를 당김 [3].</li></ul>
       <figure><img src="img/tsa_principle.png"></figure>
-      <div class="eq">(꼬기 전 길이)² = (꼬인 뒤 길이)² + (r·θ)²</div>
+      <div class="eq" style="font-size:8.6mm">(꼬기 전 길이)² = (꼬인 뒤 길이)² + (r·θ)²</div>
       <p style="font-size:6.8mm;text-align:center;color:#444">r: 회전축~줄 중심 거리(2 mm), θ: 모터가 꼬은 각도</p>
       <ul>
         <li>상완·전완의 IMU 2개로 팔꿈치 굴곡각을 실시간으로 계산함.</li>
         <li>스마트폰을 <b>Wi-Fi</b>로 연결하여 수동 모드(속도 조절)와 자동 모드(굴곡각을 따라 줄 길이 조절)로 제어하고, 팔 자세를 3D로 실시간 표시함.</li>
         <li>시제품은 마네킹 팔에서 약 100°(마네킹이 꺾이는 한계)까지 굽혀지는 것을 확인함.</li>
       </ul>
-      <figure><img src="img/phone_ui_crop.png" style="width:60%;margin:0 auto;border-radius:3mm"><figcaption>스마트폰 제어 화면 (실시간 3D 자세 표시)</figcaption></figure>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4mm;align-items:stretch">
+        <figure style="margin:3mm 0"><img src="img/phone_ui_crop.png" style="border-radius:3mm"><figcaption>스마트폰 제어 화면</figcaption></figure>
+        <div class="ph" style="margin:3mm 0">[사진] 구동 모습<br><small>마네킹 팔 착용<br>편 상태 / 굽혀진 상태(약 100°)</small></div>
+      </div>
     </div>
   </div>
 </section>
@@ -155,6 +163,7 @@ footer{font-size:6.2mm;padding:2mm 14mm 5mm;margin-top:2mm}
         <tr><td>무게와 동작</td><td>무게 부담, 동작 방해</td><td>-</td></tr>
         <tr><td>수용도</td><td>가정 착용 시 크기, 전반 만족</td><td>-</td></tr>
       </table>
+      <div class="ph" style="height:62mm">[사진] 착용 사진 2장<br><small>참가자 착용 모습 — 정면 / 측면</small></div>
       <ul><li>모든 평가 항목의 평균이 <b>3.0 이상</b>으로, 착용 만족도가 전반적으로 긍정적으로 나타남.</li></ul>
     </div>
   </div>
@@ -181,9 +190,6 @@ footer{font-size:6.2mm;padding:2mm 14mm 5mm;margin-top:2mm}
 </div>
 
 </main>
-<div class="refs"><b>References</b>
- [1] 국가기술표준원. 제8차 한국인 인체치수조사 / 제6차 3차원 인체형상. Size Korea.
- [2] Plagenhoef, S., Evans, F. G., &amp; Abdelnour, T. (1983). Anatomical data for analyzing human motion. <i>Research Quarterly for Exercise and Sport</i>, 54(2), 169–178.
- [3] Skvortsova, V., Nedelchev, S., Brown, J., Farkhatdinov, I., &amp; Gaponov, I. (2022). Design, characterisation and validation of a haptic interface based on twisted string actuation. <i>Frontiers in Robotics and AI</i>, 9, 977367.</div>
-<footer>*This work was supported by the National Research Foundation of Korea (NRF) grant funded by the Korea government (MSIT) (No. NRF-2022R1A2C1010072).</footer>
+<div class="refs"><p class="rf"><b>References</b></p><p class="rf">[1] 국가기술표준원. 제8차 한국인 인체치수조사 / 제6차 3차원 인체형상. Size Korea.</p><p class="rf">[2] Plagenhoef, S., Evans, F. G., &amp; Abdelnour, T. (1983). Anatomical data for analyzing human motion. <i>Research Quarterly for Exercise and Sport</i>, 54(2), 169–178.</p><p class="rf">[3] Skvortsova, V., Nedelchev, S., Brown, J., Farkhatdinov, I., &amp; Gaponov, I. (2022). Design, characterisation and validation of a haptic interface based on twisted string actuation. <i>Frontiers in Robotics and AI</i>, 9, 977367.</p></div>
+
 </div></body></html>
