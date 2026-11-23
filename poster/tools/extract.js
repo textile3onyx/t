@@ -14,7 +14,7 @@ const data=await p.evaluate(()=>{
    if(e.closest('table')||e.closest('.box'))return;
    texts.push({cls:e.className||e.tagName,r:R(e),runs:runs(e),...st(e),li:e.tagName=='LI',dash:!!e.closest('.box')});
  });
- document.querySelectorAll('main img').forEach(e=>imgs.push({src:e.getAttribute('src'),r:R(e)}));
+ document.querySelectorAll('main img, header img').forEach(e=>imgs.push({src:e.getAttribute('src'),r:R(e)}));
  document.querySelectorAll('.sec').forEach(e=>shapes.push({k:'sec',r:R(e)}));
  document.querySelectorAll('.tab').forEach(e=>shapes.push({k:'tab',r:R(e),runs:runs(e),...st(e)}));
  document.querySelectorAll('.bar').forEach(e=>shapes.push({k:'bar',r:R(e),runs:runs(e),...st(e)}));
