@@ -79,7 +79,7 @@ footer{font-size:6.6mm;padding:5mm 14mm 6mm;border-top:.3mm solid #999;margin-to
       <span class="bar">1. 인체치수 기반 밴드 위치 결정</span>
       <ul>
         <li>사이즈코리아(Size Korea) <b>20~24세 남성 평균</b> 3차원 인체 형상에서 팔꿈치 기준 팔 단면 둘레를 추출함.</li>
-                <li><b>JavaScript 시뮬레이터</b>를 개발하여 굴곡각별 장력·수축량·토크·회전수를 계산하고, 밴드 위치와 허브 직경을 결정함.</li>
+                <li><b>JavaScript 시뮬레이터</b>를 개발하여 굴곡각별 장력·수축량·토크·회전수를 계산하고, 밴드 위치와 줄 간격(허브 직경)을 결정함.</li>
       </ul>
       <figure><img src="img/arm_girth.png"><figcaption>팔꿈치로부터 거리에 따른 팔 단면 둘레</figcaption></figure>
     </div>
@@ -93,7 +93,7 @@ footer{font-size:6.6mm;padding:5mm 14mm 6mm;border-top:.3mm solid #999;margin-to
       <figure><img src="img/band_foldback.png"><figcaption>상완(50×380 mm)·전완(30×280 mm) 밴드 전개도</figcaption></figure>
       <ul>
         <li>모터 마운트·줄 허브·전완 앵커·방향전환 부품 5종을 3D 프린팅하여 <b>바느질 구멍</b>으로 밴드에 고정함.</li>
-        <li>상완 밴드에 모터, 3D 프린팅 줄 허브, 마이크로컨트롤러, 모터 드라이버, 배터리를 통합하고, 줄로 상완·전완 밴드를 연결함. 어깨끈으로 흘러내림을 방지함.</li>
+        <li>상완 밴드에 모터, 3D 프린팅 줄 허브, 마이크로컨트롤러, 모터 드라이버를 통합하고, 줄로 상완·전완 밴드를 연결함. 어깨끈으로 흘러내림을 방지함.</li>
         <li>상완·전완 밴드에 <b>IMU 센서</b>를 각각 부착하여 팔의 움직임을 감지함.</li>
         <li>AD0 핀으로 I2C 주소를 달리하여(0x68/0x69) 두 센서를 하나의 버스로 통신함.</li>
       </ul>
@@ -109,11 +109,11 @@ footer{font-size:6.6mm;padding:5mm 14mm 6mm;border-top:.3mm solid #999;margin-to
       <div class="step">1. 팔 움직임 감지</div>
       <div class="box"><ul><li>상완·전완의 IMU가 팔의 움직임을 감지</li><li>두 센서의 기울기 차이로 팔꿈치 굴곡각을 실시간으로 연산</li><li>착용 직후 팔을 편 자세로 영점 설정</li></ul></div>
       <div class="arrow"></div>
-      <div class="step">2. 보조 장력 계산</div>
-      <div class="box"><ul><li>자세 기반 중력보상: 전완 무게의 설정 비율(기본 50 %)만큼 필요한 장력을 계산</li><li>착용자의 의도는 추정하지 않음</li></ul></div>
+      <div class="step">2. 필요한 꼬임 산출</div>
+      <div class="box"><ul><li>착용 상태에서 굴곡각별 줄 꼬임량을 미리 기록(학습)</li><li>측정한 굴곡각에 해당하는 꼬임량을 기록에서 산출</li><li>착용자의 의도는 추정하지 않음</li></ul></div>
       <div class="arrow"></div>
       <div class="step">3. 줄 꼬임 구동</div>
-      <div class="box"><ul><li>토크 제어로 모터가 줄을 꼬아 장력을 생성 → 착용자가 항상 이길 수 있음</li><li>꼬임 16회전 상한, 110° 이상 감기 금지, 통신 끊김 시 정지</li><li>시연용 수동 모드: 스마트폰 Wi-Fi 화면으로 속도 조작</li></ul></div>
+      <div class="box"><ul><li>모터가 줄을 꼬아 굴곡각을 따라 줄 길이를 조절함</li><li>모터 전류 2 A 제한, 110° 이상 감기 금지, 통신 끊김 시 정지</li><li>시연용 수동 모드: 스마트폰 Wi-Fi 화면으로 속도 조작</li></ul></div>
     </div>
   </div>
 </section>
@@ -138,15 +138,15 @@ footer{font-size:6.6mm;padding:5mm 14mm 6mm;border-top:.3mm solid #999;margin-to
         <tr><th>항목</th><th>값</th></tr>
         <tr><td>필요 수축량</td><td class="hl">8.3 cm</td></tr>
         <tr><td>필요 장력</td><td class="hl">14 N</td></tr>
-        <tr><td>줄 허브 직경</td><td class="hl">4 mm 이상</td></tr>
+        <tr><td>줄 간격 (허브 직경)</td><td class="hl">4 mm 이상</td></tr>
       </table>
-      <ul><li>모터의 토크와 회전수 조건을 고려하여 허브 직경을 <b>4 mm 이상</b>으로 선정함.</li></ul>
+      <ul><li>모터의 토크와 회전수 조건을 고려하여 허브에서 두 줄 사이 간격(허브 직경)을 <b>4 mm 이상</b>으로 선정함.</li></ul>
     </div>
 
     <div class="sub">
       <span class="bar">3. 착용성 평가</span>
       <ul>
-        <li>20대 남성 10명을 대상으로 <b>5점 리커트 척도</b>로 착용 만족도를 주관적으로 평가함.</li>
+        <li>20대 남성 10명을 대상으로 <b>5점 리커트 척도</b>로 착용 만족도를 주관적으로 평가함 (전원을 연결하지 않은 비구동 상태).</li>
       </ul>
       <table>
         <tr><th>영역</th><th>문항</th><th>평균</th></tr>
