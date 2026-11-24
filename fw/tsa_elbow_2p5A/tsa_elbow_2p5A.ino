@@ -341,7 +341,14 @@ void loop() {
       elbow = fabsf(wrap180((angF - zeroF) - (angU - zeroU)));
     } else if (millis() - tRetry > 1000) {           // 끊겼으면 1초마다 다시 시도 (모드 상관없이)
       tRetry = millis();
-      imuOK = mpuInit(IMU_UPPER) && mpuInit(IMU_FORE); imuFail = 0;
+      bool u = mpuInit(IMU_UPPER), f = mpuInit(IMU_FORE);
+      imuOK = u && f; imuFail = 0;
+      if (Serial && !imuOK) {                        // 어느 센서가 대답 안 하는지 + 버스 상태
+        int n = 0; String found = "";
+        for (uint8_t a = 1; a < 127; a++) { Wire.beginTransmission(a); if (Wire.endTransmission() == 0) { found += String(a, HEX) + " "; n++; } }
+        Serial.printf("IMU 재연결 실패: 상완(0x68) %s, 전완(0x69) %s | 버스에서 찾은 주소: %s\n",
+                      u ? "OK" : "응답없음", f ? "OK" : "응답없음", n ? found.c_str() : "없음");
+      }
     }
   }
   if (Serial.available()) {                        // 시리얼 시험: i1.0 → 1.0 A,  s → 정지
