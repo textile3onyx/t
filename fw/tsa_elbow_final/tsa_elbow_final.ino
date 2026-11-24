@@ -275,8 +275,8 @@ void setup() {
 #endif
   L0 = strDist(0);
 
-  Wire.begin(PIN_SDA, PIN_SCL, 400000);
-  Wire.setTimeOut(4);                                // 선이 빠져도 루프가 안 멈추게
+  Wire.begin(PIN_SDA, PIN_SCL, 100000);   // 선이 길어 400 kHz 에서는 통신이 불안정 → 100 kHz
+  Wire.setTimeOut(10);                               // 선이 빠져도 루프가 안 멈추게
   imuOK = mpuInit(IMU_UPPER) && mpuInit(IMU_FORE);
 
   SPI.begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CS);
