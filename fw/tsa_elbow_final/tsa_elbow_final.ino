@@ -109,6 +109,7 @@ float tableTwist(float e) {                // 각도 → 꼬임 (기록 사이�
   return tT[nT-1];
 }             // 시리얼 i 명령 (모드 4)
 const uint32_t STALE_MS = 1500;       // 폰 신호가 이만큼 끊기면 멈춤
+int   imuFail = 0;
 bool  imuOK = false, imuZero = false, strZero = false;
 float angU = 0, angF = 0, zeroU = 0, zeroF = 0;     // 도
 float elbow = 0, phi = 0, upA = 0;                           // 도
@@ -327,16 +328,17 @@ void loop() {
     tImu = us; float a;
     if (imuOK) {
       if (mpuAngle(which ? IMU_FORE : IMU_UPPER, a)) {
+        imuFail = 0;
         float &dst = which ? angF : angU;
         dst += 0.2f * wrap180(a - dst);              // 가벼운 평활
-      } else imuOK = false;
+      } else if (++imuFail > 25) imuOK = false;     // 잡음으로 한두 번 실패해도 바로 끊지 않음
       which = !which;
       upA   = fabsf(wrap180(angU - zeroU));          // 상완 기울기 (영점 자세 기준)
       phi   = fabsf(wrap180(angF - zeroF));          // 붙인 방향과 상관없이 크기만 쓴다
       elbow = fabsf(wrap180((angF - zeroF) - (angU - zeroU)));
-    } else if (mode == 0 && millis() - tRetry > 3000) {   // 끊겼으면 정지 중에만 3초마다 다시 시도
+    } else if (millis() - tRetry > 1000) {           // 끊겼으면 1초마다 다시 시도 (모드 상관없이)
       tRetry = millis();
-      imuOK = mpuInit(IMU_UPPER) && mpuInit(IMU_FORE);
+      imuOK = mpuInit(IMU_UPPER) && mpuInit(IMU_FORE); imuFail = 0;
     }
   }
   if (Serial.available()) {                        // 시리얼 시험: i1.0 → 1.0 A,  s → 정지
